@@ -1,0 +1,16 @@
+{
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "installCommand": "pnpm install",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://take-home-test-api.nutech-integrasi.com/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

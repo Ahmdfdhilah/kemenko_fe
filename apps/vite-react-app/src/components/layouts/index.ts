@@ -1,0 +1,1 @@
+export { MainLayout as DefaultLayout } from './MainLayout';
