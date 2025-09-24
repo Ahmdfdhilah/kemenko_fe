@@ -43,7 +43,7 @@ export function FileCard({
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {
-            console.error('Failed to copy link:', err)
+            console.error('Gagal menyalin tautan:', err)
         }
     }
 
@@ -87,14 +87,14 @@ export function FileCard({
                             <DropdownMenuContent align="start" className="w-40">
                                 <DropdownMenuItem onClick={handleUpdate} className="cursor-pointer">
                                     <Edit className="h-4 w-4 mr-2" />
-                                    Update
+                                    Perbarui
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={handleDelete}
                                     className="cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
                                     <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
+                                    Hapus
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -120,7 +120,7 @@ export function FileCard({
                     </h3>
                     {lastModified && (
                         <p className="text-xs text-muted-foreground">
-                            Updated {lastModified}
+                            Diperbarui {lastModified}
                         </p>
                     )}
                 </div>
@@ -134,7 +134,7 @@ export function FileCard({
                         className="flex-1 text-xs"
                     >
                         <ExternalLink className="h-3 w-3 mr-1.5" />
-                        Open
+                        Buka
                     </Button>
                     <Button
                         variant="outline"
@@ -143,7 +143,7 @@ export function FileCard({
                         className="flex-1 text-xs"
                     >
                         <Copy className="h-3 w-3 mr-1.5" />
-                        {copied ? 'Copied!' : 'Copy'}
+                        {copied ? 'Tersalin!' : 'Salin'}
                     </Button>
                 </div>
             </div>

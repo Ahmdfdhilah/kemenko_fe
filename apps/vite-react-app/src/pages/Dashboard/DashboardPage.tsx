@@ -43,9 +43,9 @@ export default function DashboardContent() {
             await new Promise(resolve => setTimeout(resolve, 1000))
             
             setDocumentsData(prev => prev.filter(doc => doc.id !== id))
-            console.log(`Deleted folder with ID: ${id}`)
+            console.log(`Folder dengan ID ${id} telah dihapus`)
         } catch (error) {
-            console.error('Failed to delete folder:', error)
+            console.error('Gagal menghapus folder:', error)
         } finally {
             setIsLoading(false)
             setDeletingFolderId(null)
@@ -65,10 +65,10 @@ export default function DashboardContent() {
                     thumbnail: folderData.thumbnail || "https://placehold.co/600x400",
                     link: folderData.link,
                     category: folderData.category,
-                    lastModified: "just now"
+                    lastModified: "baru saja"
                 }
                 setDocumentsData(prev => [newFolder, ...prev])
-                console.log('Created new folder:', newFolder)
+                console.log('Folder baru telah dibuat:', newFolder)
             } else if (modalMode === 'edit' && editingFolder) {
                 setDocumentsData(prev =>
                     prev.map(doc =>
@@ -79,17 +79,17 @@ export default function DashboardContent() {
                                 thumbnail: folderData.thumbnail || doc.thumbnail,
                                 link: folderData.link,
                                 category: folderData.category,
-                                lastModified: "just now"
+                                lastModified: "baru saja"
                               }
                             : doc
                     )
                 )
-                console.log('Updated folder:', editingFolder.id)
+                console.log('Folder telah diperbarui:', editingFolder.id)
             }
 
             setIsModalOpen(false)
         } catch (error) {
-            console.error('Failed to save folder:', error)
+            console.error('Gagal menyimpan folder:', error)
         } finally {
             setIsLoading(false)
         }
@@ -116,7 +116,7 @@ export default function DashboardContent() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
                         <Input
                             type="search"
-                            placeholder="Search documents and categories..."
+                            placeholder="Cari dokumen dan kategori..."
                             className="pl-10 border-border focus:border-primary focus:ring-primary"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -131,7 +131,7 @@ export default function DashboardContent() {
                         className="ml-4 flex items-center gap-2"
                     >
                         <FolderPlus className="h-4 w-4" />
-                        Create Folder
+                        Buat Folder
                     </Button>
                 )}
             </header>
@@ -140,17 +140,17 @@ export default function DashboardContent() {
             <div className="flex-1 p-4 md:p-6 overflow-auto">
                 {filteredDocuments.length === 0 ? (
                     <div className="text-center py-12">
-                        <div className="text-muted-foreground text-lg mb-2">No documents found</div>
+                        <div className="text-muted-foreground text-lg mb-2">Dokumen tidak ditemukan</div>
                         <div className="text-muted-foreground/70 text-sm mb-4">
                             {searchTerm 
-                                ? "Try adjusting your search terms"
-                                : "No folders have been created yet"
+                                ? "Coba sesuaikan kata kunci pencarian Anda"
+                                : "Belum ada folder yang dibuat"
                             }
                         </div>
                         {isAdmin && !searchTerm && (
                             <Button onClick={handleCreateFolder} variant="outline">
                                 <Plus className="h-4 w-4 mr-2" />
-                                Create Your First Folder
+                                Buat Folder Pertama Anda
                             </Button>
                         )}
                     </div>
@@ -188,11 +188,11 @@ export default function DashboardContent() {
             {deletingFolderId && (
                 <ConfirmationDialog
                     triggerText={<div />}
-                    title="Delete Folder"
-                    description="Are you sure you want to delete this folder? This action cannot be undone."
+                    title="Hapus Folder"
+                    description="Apakah Anda yakin ingin menghapus folder ini? Tindakan ini tidak dapat dibatalkan."
                     onConfirm={() => handleDeleteFolder(deletingFolderId)}
-                    confirmText="Delete"
-                    cancelText="Cancel"
+                    confirmText="Hapus"
+                    cancelText="Batal"
                     isLoading={isLoading}
                     variant="destructive"
                 />

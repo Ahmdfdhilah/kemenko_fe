@@ -90,21 +90,21 @@ export function FolderModal({
         const newErrors: Partial<FolderData> = {};
         
         if (!formData.title.trim()) {
-            newErrors.title = 'Title is required';
+            newErrors.title = 'Judul wajib diisi';
         }
         
         if (!formData.category.trim()) {
-            newErrors.category = 'Category is required';
+            newErrors.category = 'Kategori wajib diisi';
         }
         
         if (!formData.link.trim()) {
-            newErrors.link = 'Link is required';
+            newErrors.link = 'Link wajib diisi';
         } else if (!isValidUrl(formData.link)) {
-            newErrors.link = 'Please enter a valid URL';
+            newErrors.link = 'Harap masukkan URL yang valid';
         }
 
         if (!formData.thumbnail && !uploadedFile) {
-            newErrors.thumbnail = 'Thumbnail image is required';
+            newErrors.thumbnail = 'Gambar thumbnail wajib diisi';
         }
 
         setErrors(newErrors);
@@ -142,7 +142,7 @@ export function FolderModal({
         if (!file.type.startsWith('image/')) {
             setErrors(prev => ({
                 ...prev,
-                thumbnail: 'Please select an image file'
+                thumbnail: 'Harap pilih file gambar'
             }));
             return;
         }
@@ -151,7 +151,7 @@ export function FolderModal({
         if (file.size > 5 * 1024 * 1024) {
             setErrors(prev => ({
                 ...prev,
-                thumbnail: 'File size must be less than 5MB'
+                thumbnail: 'Ukuran file harus kurang dari 5MB'
             }));
             return;
         }
@@ -194,12 +194,12 @@ export function FolderModal({
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle>
-                        {mode === 'create' ? 'Create New Folder' : 'Edit Folder'}
+                        {mode === 'create' ? 'Buat Folder Baru' : 'Edit Folder'}
                     </DialogTitle>
                     <DialogDescription>
                         {mode === 'create' 
-                            ? 'Add a new folder to organize your documents.' 
-                            : 'Update the folder information.'
+                            ? 'Tambahkan folder baru untuk mengorganisir dokumen Anda.' 
+                            : 'Perbarui informasi folder.'
                         }
                     </DialogDescription>
                 </DialogHeader>
@@ -208,12 +208,12 @@ export function FolderModal({
                     <form onSubmit={handleSubmit} className="space-y-4 pb-4">
                         {/* Title Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="title">Title *</Label>
+                            <Label htmlFor="title">Judul *</Label>
                             <Input
                                 id="title"
                                 value={formData.title}
                                 onChange={(e) => handleInputChange('title', e.target.value)}
-                                placeholder="Enter folder title"
+                                placeholder="Masukkan judul folder"
                                 className={errors.title ? "border-destructive" : ""}
                             />
                             {errors.title && (
@@ -223,12 +223,12 @@ export function FolderModal({
 
                         {/* Category Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="category">Category *</Label>
+                            <Label htmlFor="category">Kategori *</Label>
                             <Input
                                 id="category"
                                 value={formData.category}
                                 onChange={(e) => handleInputChange('category', e.target.value)}
-                                placeholder="Enter category"
+                                placeholder="Masukkan kategori"
                                 className={errors.category ? "border-destructive" : ""}
                             />
                             {errors.category && (
@@ -238,7 +238,7 @@ export function FolderModal({
 
                         {/* Link Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="link">Google Drive Link *</Label>
+                            <Label htmlFor="link">Link Google Drive *</Label>
                             <Textarea
                                 id="link"
                                 value={formData.link}
@@ -254,7 +254,7 @@ export function FolderModal({
 
                         {/* Thumbnail Upload Section */}
                         <div className="space-y-3">
-                            <Label>Thumbnail Image *</Label>
+                            <Label>Gambar Thumbnail *</Label>
                             
                             {/* File Upload Area */}
                             <div className="space-y-2">
@@ -295,16 +295,16 @@ export function FolderModal({
                                                 </Button>
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                Click to replace or drag a new file
+                                                Klik untuk mengganti atau seret file baru
                                             </p>
                                         </div>
                                     ) : (
                                         <div className="space-y-2">
                                             <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
                                             <div>
-                                                <p className="text-sm font-medium">Click to upload image</p>
+                                                <p className="text-sm font-medium">Klik untuk mengunggah gambar</p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    PNG, JPG, GIF up to 5MB
+                                                    PNG, JPG, GIF maksimal 5MB
                                                 </p>
                                             </div>
                                         </div>
@@ -320,17 +320,17 @@ export function FolderModal({
                             {/* Preview */}
                             {previewUrl && (
                                 <div className="space-y-2">
-                                    <Label className="text-sm text-muted-foreground">Preview</Label>
+                                    <Label className="text-sm text-muted-foreground">Pratinjau</Label>
                                     <div className="relative w-full h-40 bg-muted rounded-lg overflow-hidden">
                                         <img
                                             src={previewUrl}
-                                            alt="Thumbnail preview"
+                                            alt="Pratinjau thumbnail"
                                             className="w-full h-full object-cover"
                                             onError={() => {
                                                 setPreviewUrl('');
                                                 setErrors(prev => ({
                                                     ...prev,
-                                                    thumbnail: 'Failed to load image preview'
+                                                    thumbnail: 'Gagal memuat pratinjau gambar'
                                                 }));
                                             }}
                                         />
@@ -349,7 +349,7 @@ export function FolderModal({
                         onClick={onClose}
                         disabled={isLoading}
                     >
-                        Cancel
+                        Batal
                     </Button>
                     <Button 
                         type="submit" 
@@ -357,9 +357,9 @@ export function FolderModal({
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <>Processing...</>
+                            <>Memproses...</>
                         ) : (
-                            mode === 'create' ? 'Create Folder' : 'Update Folder'
+                            mode === 'create' ? 'Buat Folder' : 'Perbarui Folder'
                         )}
                     </Button>
                 </DialogFooter>

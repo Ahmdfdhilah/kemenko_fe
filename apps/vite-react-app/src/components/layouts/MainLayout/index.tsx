@@ -29,15 +29,15 @@ function SidebarContent() {
 
       <nav className="flex-1 space-y-1 px-2 py-4">
         <NavItem href="#" icon={<LayoutGrid className="h-4 w-4" />} active>
-          All Documents
+          Semua Dokumen
         </NavItem>
         <NavItem href="#" icon={<Users className="h-4 w-4" />}>
-          User Management
+          User Manajemen
         </NavItem>
 
         <div className="py-4">
           <div className="px-3 text-xs font-semibold uppercase text-muted-foreground tracking-wide">
-            Categories Folder
+            Folder Kategori
           </div>
           <div className="mt-3 space-y-1">
             <FolderItem href="#">Surat</FolderItem>
