@@ -5,34 +5,31 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
-import { cn } from "@workspace/ui/lib/utils"
-import { ExternalLink, Copy, Trash2, Edit, Star, MoreVertical, Folder } from "lucide-react"
+import { ExternalLink, Copy, Trash2, Edit, MoreVertical, Folder } from "lucide-react"
 import { useState } from "react"
 
 interface FileCardProps {
-    title: string
-    thumbnail: string
-    link: string
-    category?: string
-    isStarred?: boolean
-    lastModified?: string
-    isAdmin?: boolean
-    onUpdate?: () => void
-    onDelete?: () => void
-    onToggleStar?: () => void
+    id: string;
+    title: string;
+    thumbnail: string;
+    link: string;
+    category?: string;
+    lastModified?: string;
+    isAdmin?: boolean;
+    onUpdate?: (id: string) => void;
+    onDelete?: (id: string) => void;
 }
 
 export function FileCard({
+    id,
     title,
     thumbnail,
     link,
     category,
-    isStarred = false,
     lastModified,
     isAdmin = false,
     onUpdate,
-    onDelete,
-    onToggleStar
+    onDelete
 }: FileCardProps) {
     const [copied, setCopied] = useState(false)
 
@@ -50,6 +47,18 @@ export function FileCard({
         }
     }
 
+    const handleUpdate = () => {
+        if (onUpdate) {
+            onUpdate(id);
+        }
+    }
+
+    const handleDelete = () => {
+        if (onDelete) {
+            onDelete(id);
+        }
+    }
+
     return (
         <div className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-accent">
             {/* Thumbnail Section */}
@@ -62,23 +71,9 @@ export function FileCard({
                     className="h-full w-full object-cover transition-transform group-hover:scale-105"
                 />
 
-                {/* Star Button */}
-                <button
-                    onClick={onToggleStar}
-                    className={cn(
-                        "absolute top-3 right-3 p-1.5 rounded-full backdrop-blur-sm transition-all duration-200",
-                        "opacity-0 group-hover:opacity-100",
-                        isStarred
-                            ? "bg-yellow-500 text-primary-foreground shadow-lg"
-                            : "bg-background/80 text-muted-foreground hover:bg-background hover:text-yellow-500"
-                    )}
-                >
-                    <Star className={cn("h-4 w-4", isStarred && "fill-current")} />
-                </button>
-
                 {/* Admin Menu */}
                 {isAdmin && (
-                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
@@ -90,12 +85,12 @@ export function FileCard({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="start" className="w-40">
-                                <DropdownMenuItem onClick={onUpdate} className="cursor-pointer">
+                                <DropdownMenuItem onClick={handleUpdate} className="cursor-pointer">
                                     <Edit className="h-4 w-4 mr-2" />
                                     Update
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    onClick={onDelete}
+                                    onClick={handleDelete}
                                     className="cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
                                     <Trash2 className="h-4 w-4 mr-2" />
@@ -152,13 +147,6 @@ export function FileCard({
                     </Button>
                 </div>
             </div>
-
-            {/* Starred Indicator */}
-            {isStarred && (
-                <div className="absolute top-0 right-0 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-t-yellow-400">
-                    <Star className="absolute -top-4 -right-1 h-3 w-3 text-primary-foreground fill-current" />
-                </div>
-            )}
         </div>
     )
 }

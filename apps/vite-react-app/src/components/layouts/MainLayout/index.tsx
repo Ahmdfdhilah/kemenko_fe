@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@workspace/ui/components/shee
 import { Button } from '@workspace/ui/components/button';
 import { NavItem } from '@/components/common/NavItem';
 import { FolderItem } from '@/components/common/FolderItem';
-import { LayoutGrid, Star, Menu } from 'lucide-react';
+import { LayoutGrid, Menu, Users } from 'lucide-react';
 import Header from './Header';
 import logo from '@/assets/logo.webp';
 
@@ -31,13 +31,13 @@ function SidebarContent() {
         <NavItem href="#" icon={<LayoutGrid className="h-4 w-4" />} active>
           All Documents
         </NavItem>
-        <NavItem href="#" icon={<Star className="h-4 w-4" />}>
-          Starred
+        <NavItem href="#" icon={<Users className="h-4 w-4" />}>
+          User Management
         </NavItem>
 
         <div className="py-4">
           <div className="px-3 text-xs font-semibold uppercase text-muted-foreground tracking-wide">
-            Categories
+            Categories Folder
           </div>
           <div className="mt-3 space-y-1">
             <FolderItem href="#">Surat</FolderItem>
