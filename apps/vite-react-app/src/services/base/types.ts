@@ -1,17 +1,22 @@
+//ENUM
+export type Sort  = 'asc'  | 'desc'
 
-export interface ApiResponse<T = any> {
-  status: number;
-  message: string;
-  data?: T;
+//BASE
+export interface Base {
+  id: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface PaginationParams {
-  offset?: number;
-  limit?: number;
-}
-
+//RESPONSE
 export interface PaginatedResponse<T> {
-  records: T[];
-  offset: number;
-  limit: number;
+  meta: {
+    page: number;
+    limit: number;
+    total_items: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  }
+  items: T[];
 }

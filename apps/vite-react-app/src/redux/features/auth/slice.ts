@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from '@workspace/ui/components/sonner';
 import type {
     UserProfile,
-} from '@/services/membership';
+} from '@/services/auth';
 import { getTokenExpiry } from '@/utils/jwt';
 import { getProfile, loginUser, registerUser, updateProfile, updateProfileImage } from './thunks';
 import { AuthState } from './types';

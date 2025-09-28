@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form";
 import { useAuth } from "@/hooks/useAuth";
-import type { LoginRequest } from "@/services/membership/types";
+import type { LoginRequest } from "@/services/auth/types";
 import { LoginDto, loginSchema } from "./LoginDto";
 import { logoImg } from "@/lib/constants";
 

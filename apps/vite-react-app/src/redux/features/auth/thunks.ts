@@ -1,11 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { membershipService, MembershipService } from '@/services/membership';
+import { membershipService, MembershipService } from '@/services/auth';
 import { toast } from '@workspace/ui/components/sonner';
 import type {
     RegistrationRequest,
     LoginRequest,
     UpdateProfileRequest,
-} from '@/services/membership';
+} from '@/services/auth';
 import { getTokenExpiry } from '@/utils/jwt';
 
 // Async Thunks

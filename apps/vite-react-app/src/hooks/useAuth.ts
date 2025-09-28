@@ -27,7 +27,7 @@ import type {
   RegistrationRequest,
   UpdateProfileRequest,
   UserProfile
-} from '@/services/membership';
+} from '@/services/auth';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const useAuth = () => {

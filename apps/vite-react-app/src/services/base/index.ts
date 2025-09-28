@@ -1,6 +1,6 @@
 export { BaseService } from "./service";
 export type {
-  ApiResponse,
-  PaginationParams,
+  Base,
   PaginatedResponse,
+  Sort
 } from "./types";

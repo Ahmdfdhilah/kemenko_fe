@@ -1,4 +1,5 @@
 import api from "@/utils/api";
+import { toast } from "@workspace/ui/components/sonner";
 import { AxiosResponse } from "axios";
 
 export abstract class BaseService {
@@ -16,7 +17,19 @@ export abstract class BaseService {
       return response.data;
     } catch (error: any) {
 
-      throw error; 
+      let errorMessage = "Unknown Error";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error('Error', {
+        description: errorMessage
+      })
+
+      throw new Error(errorMessage);
     }
   }
 
@@ -48,5 +61,15 @@ export abstract class BaseService {
     return this.handleRequest(
       () => api.delete(`${this.baseEndpoint}${endpoint}`)
     );
+  }
+
+  protected buildQuery(params: Record<string, any>): string {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        query.append(key, String(value));
+      }
+    });
+    return query.toString() ? `?${query.toString()}` : "";
   }
 }

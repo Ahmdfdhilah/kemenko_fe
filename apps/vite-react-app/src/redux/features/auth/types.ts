@@ -1,6 +1,6 @@
 
 // src/redux/features/auth/types.ts
-import type { UserProfile } from '@/services/membership';
+import type { UserProfile } from '@/services/auth';
 
 export interface AuthState {
     user: UserProfile | null;
