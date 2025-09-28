@@ -1,1 +1,1 @@
-export type { UserBase, UserResponsePaginated } from './types';
+export type { UserBase, UserResponsePaginated, UserRole, UserCreate, UserUpdate, UserPaginatedParams } from './types';

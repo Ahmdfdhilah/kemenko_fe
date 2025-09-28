@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { TooltipProvider } from '@workspace/ui/components/tooltip';
@@ -11,10 +10,12 @@ import { QueryProvider } from './providers/QueryProvider';
 import { AuthLayout } from './components/layouts/AuthLayout';
 import { MainLayout } from './components/layouts/MainLayout';
 import Dashboard from './pages/Dashboard/DashboardPage';
+import UnauthorizedPage from './pages/Unauthorized/UnauthorizedPage';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { AuthProvider } from './components/Auth/AuthProvider';
 import ThemeToggle from './components/common/ThemeToggle';
-
+import { ProtectedRoute } from './components/Auth/ProtectedRoute';
+import { AuthGuard } from './components/Auth/AuthGuard';
 
 function App() {
   return (
@@ -26,22 +27,57 @@ function App() {
               <AuthProvider>
                 <ThemeProvider>
                   <BrowserRouter>
-                    <Toaster />
-                    <ThemeToggle />
-                    <Routes>
+                    <AuthGuard>
+                      <Toaster />
+                      <ThemeToggle />
+                      <Routes>
 
-                      {/* Auth route */}
-                      <Route element={<AuthLayout />}>
-                        <Route path="/login" element={<LoginPage />} />
-                      </Route>
+                        {/* Auth route - Public */}
+                        <Route element={<AuthLayout />}>
+                          <Route
+                            path="/login"
+                            element={
+                              <ProtectedRoute requireAuth={false}>
+                                <LoginPage />
+                              </ProtectedRoute>
+                            }
+                          />
+                        </Route>
 
-                      {/* Protected Main Route */}
-                      <Route element={<MainLayout />}>
-                        <Route index element={<Dashboard />} />
-                      </Route>
+                        {/* Protected Main Route */}
+                        <Route element={<MainLayout />}>
+                          <Route
+                            path="/"
+                            element={
+                              <ProtectedRoute requiredRoles={['user', 'admin']}>
+                                <Dashboard />
+                              </ProtectedRoute>
+                            }
+                          />
+                        </Route>
 
+                        {/* Unauthorized Page - Public */}
+                        <Route
+                          path="/unauthorized"
+                          element={
+                            <ProtectedRoute requireAuth={false}>
+                              <UnauthorizedPage />
+                            </ProtectedRoute>
+                          }
+                        />
 
-                    </Routes>
+                        {/* Catch-all fallback */}
+                        <Route
+                          path="*"
+                          element={
+                            <ProtectedRoute>
+                              <Dashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                      </Routes>
+                    </AuthGuard>
                   </BrowserRouter>
                 </ThemeProvider>
               </AuthProvider>

@@ -8,6 +8,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
 import { Search, Plus, FolderPlus } from "lucide-react"
 import { useState } from "react"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function DashboardContent() {
     const [documentsData, setDocumentsData] = useState<Document[]>(documents)
@@ -17,6 +18,12 @@ export default function DashboardContent() {
     const [editingFolder, setEditingFolder] = useState<Document | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
+
+    const { user, logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+    }; 
 
     // Set to true if user is admin
     const isAdmin = true
@@ -41,7 +48,7 @@ export default function DashboardContent() {
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000))
-            
+
             setDocumentsData(prev => prev.filter(doc => doc.id !== id))
             console.log(`Folder dengan ID ${id} telah dihapus`)
         } catch (error) {
@@ -80,7 +87,7 @@ export default function DashboardContent() {
                                 link: folderData.link,
                                 category: folderData.category,
                                 lastModified: "baru saja"
-                              }
+                            }
                             : doc
                     )
                 )
@@ -126,8 +133,8 @@ export default function DashboardContent() {
 
                 {/* Create Folder Button - Only visible for admins */}
                 {isAdmin && (
-                    <Button 
-                        onClick={handleCreateFolder}
+                    <Button
+                        onClick={handleLogout}
                         className="ml-4 flex items-center gap-2"
                     >
                         <FolderPlus className="h-4 w-4" />
@@ -142,7 +149,7 @@ export default function DashboardContent() {
                     <div className="text-center py-12">
                         <div className="text-muted-foreground text-lg mb-2">Dokumen tidak ditemukan</div>
                         <div className="text-muted-foreground/70 text-sm mb-4">
-                            {searchTerm 
+                            {searchTerm
                                 ? "Coba sesuaikan kata kunci pencarian Anda"
                                 : "Belum ada folder yang dibuat"
                             }
