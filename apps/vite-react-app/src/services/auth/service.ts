@@ -4,7 +4,7 @@ import {
     LoginResponse,
     RefreshTokenRequest,
     RefreshTokenResponse
-} from "."
+} from "./"
 import { UserBase } from "@/services/users";
 
 export class AuthService extends BaseService {

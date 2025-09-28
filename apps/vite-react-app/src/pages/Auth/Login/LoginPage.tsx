@@ -7,6 +7,7 @@ import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -17,12 +18,12 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@workspace/ui/components/form";
 import { useAuth } from "@/hooks/useAuth";
 import type { LoginRequest } from "@/services/auth/types";
 import { LoginDto, loginSchema } from "./LoginDto";
-import { logoImg } from "@/lib/constants";
 
 export const LoginPage: React.FC = () => {
   const { login, isLoading, clearError } = useAuth();
@@ -39,39 +40,33 @@ export const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginDto) => {
     clearError();
-    const result = await login(data as LoginRequest);
-    if (result.success) {
-      navigate("/");
-    }
+    await login(data as LoginRequest);
   };
 
   return (
-    <Card className="border-0 md:shadow-none md:bg-transparent">
-      <CardHeader className="space-y-4 pb-2 text-center">
-        <div className="flex items-center justify-center space-x-2">
-          <img
-            src={logoImg}
-            alt="Logo"
-            className="h-8 w-8"
-          />
-          <span className="text-xl font-bold">SIMF </span>
-        </div>
 
-        <CardTitle className="text-3xl font-bold">
-          Masuk atau buat akun untuk memulai
+    <Card>
+      <CardHeader>
+        <CardDescription>
+          Selamat Datang, Silahkan
+        </CardDescription>
+        <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          Masuk
         </CardTitle>
+
       </CardHeader>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-6">
- 
+
             {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-opacity ${field.value ? 'opacity-100 text-foreground' : 'opacity-50 text-muted-foreground'
@@ -96,6 +91,7 @@ export const LoginPage: React.FC = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Kata Sandi</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-opacity ${field.value ? 'opacity-100 text-foreground' : 'opacity-50 text-muted-foreground'
@@ -147,13 +143,13 @@ export const LoginPage: React.FC = () => {
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
-              belum punya akun? registrasi{" "}
+              Lupa kata sandi? klik{" "}
               <Button
                 type="button"
                 variant="link"
                 className="p-0 h-auto font-medium text-primary"
                 onClick={() => {
-                  clearError(); 
+                  clearError();
                   navigate("/register");
                 }}
               >
@@ -164,5 +160,6 @@ export const LoginPage: React.FC = () => {
         </form>
       </Form>
     </Card>
+
   );
 };

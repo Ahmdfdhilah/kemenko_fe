@@ -6,19 +6,9 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    //pakai proxy karna kena cors jika langsung request (cors setting dari backend salah (*,))
-    proxy: {
-      '/api': {
-        target: 'https://take-home-test-api.nutech-integrasi.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), 
-      },
-    },
-    
   },
   plugins: [
     react(),
-
   ],
   resolve: {
     alias: {

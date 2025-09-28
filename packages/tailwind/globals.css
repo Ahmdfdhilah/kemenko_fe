@@ -183,71 +183,73 @@ body {
   }
 
   .dark {
-    /* Dark mode - Deep teal harmonious tones */
-    --background: hsl(185 20% 8%);
-    --foreground: hsl(185 8% 95%);
-    --card: hsl(185 18% 12%);
-    --card-foreground: hsl(185 8% 90%);
-    --popover: hsl(185 20% 8%);
-    --popover-foreground: hsl(185 8% 95%);
+    /* Dark mode - Improved balanced dark theme with better contrast */
+    --background: hsl(210 11% 6%);  /* Almost black with subtle blue tint */
+    --foreground: hsl(210 6% 93%);  /* Soft white with subtle warmth */
+    
+    --card: hsl(210 11% 9%);        /* Darker card background */
+    --card-foreground: hsl(210 6% 90%);  /* Slightly dimmer text on cards */
+    
+    --popover: hsl(210 11% 8%);     /* Similar to background but slightly different */
+    --popover-foreground: hsl(210 6% 93%);
 
-    /* Primary - Brighter teal for dark mode */
-    --primary: hsl(185 75% 45%);
-    --primary-foreground: hsl(185 20% 8%);
+    /* Primary - Vibrant but not harsh teal */
+    --primary: hsl(185 80% 55%);    /* Brighter teal, more visible in dark */
+    --primary-foreground: hsl(210 11% 6%);  /* Dark text on bright primary */
 
-    /* Secondary - Dark teal gray */
-    --secondary: hsl(185 12% 18%);
-    --secondary-foreground: hsl(185 8% 85%);
+    /* Secondary - Subtle gray-teal */
+    --secondary: hsl(210 8% 14%);   /* Neutral secondary background */
+    --secondary-foreground: hsl(210 6% 82%);  /* Light text on secondary */
 
-    /* Muted - Darker cool gray */
-    --muted: hsl(185 10% 22%);
-    --muted-foreground: hsl(185 6% 65%);
+    /* Muted - Balanced gray for less important elements */
+    --muted: hsl(210 8% 16%);       /* Slightly lighter than secondary */
+    --muted-foreground: hsl(210 4% 58%);  /* Medium gray text */
 
-    /* Accent - Muted teal */
-    --accent: hsl(185 25% 25%);
-    --accent-foreground: hsl(185 8% 95%);
+    /* Accent - Subtle highlight color */
+    --accent: hsl(185 20% 20%);     /* Dark teal accent */
+    --accent-foreground: hsl(210 6% 90%);  /* Light text on accent */
 
-    /* Destructive - Softer coral for dark mode */
-    --destructive: hsl(15 65% 45%);
-    --destructive-foreground: hsl(0 0% 98%);
+    /* Destructive - Warm red that works in dark */
+    --destructive: hsl(0 75% 58%);  /* Slightly brighter red for visibility */
+    --destructive-foreground: hsl(210 6% 93%);
 
-    /* UI Elements */
-    --border: hsl(185 12% 20%);
-    --input: hsl(185 12% 18%);
-    --ring: hsl(185 75% 45%);
+    /* UI Elements - Better contrast and visibility */
+    --border: hsl(210 8% 18%);      /* Subtle borders */
+    --input: hsl(210 8% 12%);       /* Input backgrounds */
+    --ring: hsl(185 80% 55%);       /* Focus rings match primary */
 
-    /* Chart Colors - Dark mode teal harmony */
-    --chart-1: hsl(185 75% 45%);
-    --chart-2: hsl(180 70% 50%);
-    --chart-3: hsl(175 65% 55%);
-    --chart-4: hsl(170 60% 58%);
-    --chart-5: hsl(165 55% 60%);
+    /* Chart Colors - Vibrant but harmonious for dark backgrounds */
+    --chart-1: hsl(185 80% 55%);
+    --chart-2: hsl(180 75% 60%);
+    --chart-3: hsl(175 70% 65%);
+    --chart-4: hsl(170 65% 68%);
+    --chart-5: hsl(165 60% 70%);
 
-    /* Sidebar - Dark teal theme */
-    --sidebar: hsl(185 18% 10%);
-    --sidebar-foreground: hsl(185 8% 90%);
-    --sidebar-primary: hsl(185 75% 45%);
-    --sidebar-primary-foreground: hsl(185 20% 8%);
-    --sidebar-accent: hsl(185 12% 18%);
-    --sidebar-accent-foreground: hsl(185 8% 85%);
-    --sidebar-border: hsl(185 12% 20%);
-    --sidebar-ring: hsl(185 75% 45%);
+    /* Sidebar - Consistent with main theme */
+    --sidebar: hsl(210 11% 8%);
+    --sidebar-foreground: hsl(210 6% 90%);
+    --sidebar-primary: hsl(185 80% 55%);
+    --sidebar-primary-foreground: hsl(210 11% 6%);
+    --sidebar-accent: hsl(210 8% 12%);
+    --sidebar-accent-foreground: hsl(210 6% 85%);
+    --sidebar-border: hsl(210 8% 16%);
+    --sidebar-ring: hsl(185 80% 55%);
 
-    /* Typography */
+    /* Typography - Same as light mode */
     --font-sans: Inter, system-ui, sans-serif;
     --font-serif: Georgia, serif;
     --font-mono: 'Fira Code', monospace;
     --radius: 0.5rem;
 
-    /* Shadows - Enhanced for dark mode */
-    --shadow-2xs: 0px 4px 10px 0px hsl(0 0% 0% / 0.30);
-    --shadow-xs: 0px 4px 10px 0px hsl(0 0% 0% / 0.35);
-    --shadow-sm: 0px 4px 10px 0px hsl(0 0% 0% / 0.40), 0px 1px 2px -1px hsl(0 0% 0% / 0.40);
-    --shadow: 0px 4px 10px 0px hsl(0 0% 0% / 0.45), 0px 1px 2px -1px hsl(0 0% 0% / 0.40);
-    --shadow-md: 0px 4px 10px 0px hsl(0 0% 0% / 0.50), 0px 2px 4px -1px hsl(0 0% 0% / 0.45);
-    --shadow-lg: 0px 4px 10px 0px hsl(0 0% 0% / 0.55), 0px 4px 6px -1px hsl(0 0% 0% / 0.50);
-    --shadow-xl: 0px 4px 10px 0px hsl(0 0% 0% / 0.60), 0px 8px 10px -1px hsl(0 0% 0% / 0.55);
-    --shadow-2xl: 0px 4px 10px 0px hsl(0 0% 0% / 0.70);
+    /* Shadows - More pronounced for dark mode depth */
+    --shadow-2xs: 0px 2px 4px 0px hsl(0 0% 0% / 0.15);
+    --shadow-xs: 0px 2px 6px 0px hsl(0 0% 0% / 0.20);
+    --shadow-sm: 0px 4px 8px 0px hsl(0 0% 0% / 0.25), 0px 1px 2px -1px hsl(0 0% 0% / 0.25);
+    --shadow: 0px 4px 12px 0px hsl(0 0% 0% / 0.30), 0px 2px 4px -1px hsl(0 0% 0% / 0.25);
+    --shadow-md: 0px 6px 16px 0px hsl(0 0% 0% / 0.35), 0px 2px 6px -1px hsl(0 0% 0% / 0.30);
+    --shadow-lg: 0px 8px 24px 0px hsl(0 0% 0% / 0.40), 0px 4px 8px -1px hsl(0 0% 0% / 0.35);
+    --shadow-xl: 0px 12px 32px 0px hsl(0 0% 0% / 0.45), 0px 8px 12px -1px hsl(0 0% 0% / 0.40);
+    --shadow-2xl: 0px 16px 48px 0px hsl(0 0% 0% / 0.55);
   }
 
   @theme inline {

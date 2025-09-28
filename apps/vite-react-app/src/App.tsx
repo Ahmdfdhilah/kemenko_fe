@@ -9,10 +9,11 @@ import { Toaster } from "@workspace/ui/components/sonner";
 import { LoginPage } from './pages/Auth/Login/LoginPage';
 import { QueryProvider } from './providers/QueryProvider';
 import { AuthLayout } from './components/layouts/AuthLayout';
-import { authImg } from './lib/constants';
-import { RegisterPage } from './pages/Auth/Register/RegisterPage';
 import { MainLayout } from './components/layouts/MainLayout';
 import Dashboard from './pages/Dashboard/DashboardPage';
+import { ThemeProvider } from './providers/ThemeProvider';
+import { AuthProvider } from './components/Auth/AuthProvider';
+import ThemeToggle from './components/common/ThemeToggle';
 
 
 function App() {
@@ -22,30 +23,28 @@ function App() {
         <TooltipProvider>
           <PersistGate loading={null} persistor={persistor}>
             <QueryProvider>
-              {/* <AuthProvider> */}
+              <AuthProvider>
+                <ThemeProvider>
+                  <BrowserRouter>
+                    <Toaster />
+                    <ThemeToggle />
+                    <Routes>
 
-              {/* <ThemeProvider>   belum butuh theme*/}
-              <BrowserRouter>
-                <Toaster />
-                {/* <ThemeToggle /> */}
-                <Routes>
+                      {/* Auth route */}
+                      <Route element={<AuthLayout />}>
+                        <Route path="/login" element={<LoginPage />} />
+                      </Route>
 
-                  {/* Auth route */}
-                  <Route element={<AuthLayout rightSectionImage={authImg} />}>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                  </Route>
-
-                  {/* Protected Main Route */}
-                  <Route element={<MainLayout />}>
-                    <Route index element={<Dashboard />} />
-                  </Route>
+                      {/* Protected Main Route */}
+                      <Route element={<MainLayout />}>
+                        <Route index element={<Dashboard />} />
+                      </Route>
 
 
-                </Routes>
-              </BrowserRouter>
-              {/* </ThemeProvider> */}
-              {/* </AuthProvider> */}
+                    </Routes>
+                  </BrowserRouter>
+                </ThemeProvider>
+              </AuthProvider>
             </QueryProvider>
           </PersistGate>
         </TooltipProvider>
