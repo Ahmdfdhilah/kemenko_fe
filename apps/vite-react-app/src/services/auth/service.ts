@@ -12,7 +12,6 @@ export class AuthService extends BaseService {
         super('/auth');
     }
 
-
     async login(data: LoginRequest): Promise<LoginResponse> {
         return this.post<LoginResponse>('/login', data);
     }

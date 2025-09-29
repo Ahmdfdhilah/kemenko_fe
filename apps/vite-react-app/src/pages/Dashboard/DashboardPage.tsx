@@ -3,30 +3,45 @@
 import { FileCard } from "@/components/common/FileCard"
 import { FolderModal, FolderData } from "@/components/common/FolderModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
-import { documents, Document } from "@/lib/mocks/documents"
+import { FolderBase } from "@/services/folders/types"
 import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
-import { Search, Plus, FolderPlus } from "lucide-react"
+import { Search, Plus, FolderPlus, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { useAuth } from "@/hooks/useAuth"
+import { useFolders, useCreateFolder, useUpdateFolder, useDeleteFolder } from '@/hooks/useFolders'
 
-export default function DashboardContent() {
-    const [documentsData, setDocumentsData] = useState<Document[]>(documents)
+export default function DashboardPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-    const [editingFolder, setEditingFolder] = useState<Document | null>(null)
-    const [isLoading, setIsLoading] = useState(false)
+    const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageLimit] = useState(12)
 
-    const { user, logout } = useAuth();
-
-    const handleLogout = () => {
-        logout();
-    }; 
 
     // Set to true if user is admin
     const isAdmin = true
+
+    // Use custom hooks for folder operations
+    const {
+        data: foldersResponse,
+        isLoading: isLoadingFolders,
+        error: foldersError,
+        refetch: refetchFolders
+    } = useFolders({
+        page: currentPage,
+        limit: pageLimit,
+        search: searchTerm || null,
+        sort_by: 'updated_at',
+        sort_type: 'desc'
+    })
+
+    const createFolderMutation = useCreateFolder()
+    const updateFolderMutation = useUpdateFolder()
+    const deleteFolderMutation = useDeleteFolder()
+
+
 
     const handleCreateFolder = () => {
         setModalMode('create')
@@ -35,7 +50,7 @@ export default function DashboardContent() {
     }
 
     const handleEditFolder = (id: string) => {
-        const folder = documentsData.find(doc => doc.id === id)
+        const folder = foldersResponse?.items.find(folder => folder.id === id)
         if (folder) {
             setModalMode('edit')
             setEditingFolder(folder)
@@ -44,61 +59,45 @@ export default function DashboardContent() {
     }
 
     const handleDeleteFolder = async (id: string) => {
-        setIsLoading(true)
-        try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            setDocumentsData(prev => prev.filter(doc => doc.id !== id))
-            console.log(`Folder dengan ID ${id} telah dihapus`)
-        } catch (error) {
-            console.error('Gagal menghapus folder:', error)
-        } finally {
-            setIsLoading(false)
-            setDeletingFolderId(null)
-        }
+        deleteFolderMutation.mutate(id, {
+            onSuccess: () => {
+                setDeletingFolderId(null)
+            },
+            onError: () => {
+                setDeletingFolderId(null)
+            }
+        })
     }
 
     const handleSaveFolder = async (folderData: FolderData) => {
-        setIsLoading(true)
-        try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            if (modalMode === 'create') {
-                const newFolder: Document = {
-                    id: Date.now().toString(),
-                    title: folderData.title,
-                    thumbnail: folderData.thumbnail || "https://placehold.co/600x400",
-                    link: folderData.link,
-                    category: folderData.category,
-                    lastModified: "baru saja"
+        if (modalMode === 'create') {
+            createFolderMutation.mutate({
+                title: folderData.title,
+                link: folderData.link,
+                description: folderData.description,
+                image: folderData.image
+            }, {
+                onSuccess: () => {
+                    setIsModalOpen(false)
+                    setEditingFolder(null)
                 }
-                setDocumentsData(prev => [newFolder, ...prev])
-                console.log('Folder baru telah dibuat:', newFolder)
-            } else if (modalMode === 'edit' && editingFolder) {
-                setDocumentsData(prev =>
-                    prev.map(doc =>
-                        doc.id === editingFolder.id
-                            ? {
-                                ...doc,
-                                title: folderData.title,
-                                thumbnail: folderData.thumbnail || doc.thumbnail,
-                                link: folderData.link,
-                                category: folderData.category,
-                                lastModified: "baru saja"
-                            }
-                            : doc
-                    )
-                )
-                console.log('Folder telah diperbarui:', editingFolder.id)
-            }
-
-            setIsModalOpen(false)
-        } catch (error) {
-            console.error('Gagal menyimpan folder:', error)
-        } finally {
-            setIsLoading(false)
+            })
+        } else if (modalMode === 'edit' && editingFolder) {
+            updateFolderMutation.mutate({
+                data: {
+                    title: folderData.title,
+                    link: folderData.link,
+                    description: folderData.description,
+                    image: folderData.image,
+                    remove_image: folderData.removeImage
+                },
+                id: editingFolder.id
+            }, {
+                onSuccess: () => {
+                    setIsModalOpen(false)
+                    setEditingFolder(null)
+                }
+            })
         }
     }
 
@@ -107,12 +106,16 @@ export default function DashboardContent() {
         setEditingFolder(null)
     }
 
-    // Filter documents based on search term
-    const filteredDocuments = documentsData.filter(doc => {
-        const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            doc.category.toLowerCase().includes(searchTerm.toLowerCase())
-        return matchesSearch
-    })
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page)
+    }
+
+    const isLoading = isLoadingFolders ||
+        createFolderMutation.isPending ||
+        updateFolderMutation.isPending ||
+        deleteFolderMutation.isPending
+
+    const folders = foldersResponse?.items || []
 
     return (
         <div className="flex flex-col h-full">
@@ -133,21 +136,45 @@ export default function DashboardContent() {
 
                 {/* Create Folder Button - Only visible for admins */}
                 {isAdmin && (
-                    <Button
-                        onClick={handleLogout}
-                        className="ml-4 flex items-center gap-2"
-                    >
-                        <FolderPlus className="h-4 w-4" />
-                        Buat Folder
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button
+                            onClick={handleCreateFolder}
+                            className="flex items-center gap-2"
+                            disabled={isLoading}
+                        >
+                            <FolderPlus className="h-4 w-4" />
+                            Buat Folder
+                        </Button>
+                    </div>
                 )}
             </header>
 
             {/* Content */}
             <div className="flex-1 p-4 md:p-6 overflow-auto">
-                {filteredDocuments.length === 0 ? (
+                {isLoadingFolders && (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="flex items-center gap-2">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                            <span>Memuat folder...</span>
+                        </div>
+                    </div>
+                )}
+
+                {foldersError && (
                     <div className="text-center py-12">
-                        <div className="text-muted-foreground text-lg mb-2">Dokumen tidak ditemukan</div>
+                        <div className="text-red-600 text-lg mb-2">Gagal memuat folder</div>
+                        <div className="text-muted-foreground/70 text-sm mb-4">
+                            {foldersError.message}
+                        </div>
+                        <Button onClick={() => refetchFolders()} variant="outline">
+                            Coba Lagi
+                        </Button>
+                    </div>
+                )}
+
+                {!isLoadingFolders && !foldersError && folders.length === 0 && (
+                    <div className="text-center py-12">
+                        <div className="text-muted-foreground text-lg mb-2">Folder tidak ditemukan</div>
                         <div className="text-muted-foreground/70 text-sm mb-4">
                             {searchTerm
                                 ? "Coba sesuaikan kata kunci pencarian Anda"
@@ -161,23 +188,47 @@ export default function DashboardContent() {
                             </Button>
                         )}
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {filteredDocuments.map((doc) => (
-                            <FileCard
-                                key={doc.id}
-                                id={doc.id}
-                                title={doc.title}
-                                thumbnail={doc.thumbnail}
-                                link={doc.link}
-                                category={doc.category}
-                                lastModified={doc.lastModified}
-                                isAdmin={isAdmin}
-                                onUpdate={handleEditFolder}
-                                onDelete={(id) => setDeletingFolderId(id)}
-                            />
-                        ))}
-                    </div>
+                )}
+
+                {!isLoadingFolders && !foldersError && folders.length > 0 && (
+                    <>
+                        <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {folders.map((folder) => (
+                                <FileCard
+                                    key={folder.id}
+                                    folder={folder}
+                                    isAdmin={isAdmin}
+                                    onUpdate={handleEditFolder}
+                                    onDelete={(id) => setDeletingFolderId(id)}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {foldersResponse && foldersResponse.meta.total_pages > 1 && (
+                            <div className="flex justify-center items-center gap-2 mt-8">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={!foldersResponse.meta.has_prev || isLoading}
+                                >
+                                    Previous
+                                </Button>
+
+                                <span className="text-sm text-muted-foreground">
+                                    Page {currentPage} of {foldersResponse.meta.total_pages}
+                                </span>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={!foldersResponse.meta.has_next || isLoading}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -200,7 +251,7 @@ export default function DashboardContent() {
                     onConfirm={() => handleDeleteFolder(deletingFolderId)}
                     confirmText="Hapus"
                     cancelText="Batal"
-                    isLoading={isLoading}
+                    isLoading={deleteFolderMutation.isPending}
                     variant="destructive"
                 />
             )}

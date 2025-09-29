@@ -1,3 +1,4 @@
+// fe\apps\vite-react-app\src\services\users\types.ts
 import { Base, PaginatedResponse, Sort } from "@/services/base";
 
 //ENUM 
@@ -9,6 +10,7 @@ export interface UserBase extends Base {
     email: string;
     role: UserRole;
 }
+
 
 //RESPONSE
 export interface UserResponsePaginated extends PaginatedResponse<UserBase> { }

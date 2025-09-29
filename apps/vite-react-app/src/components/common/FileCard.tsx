@@ -7,26 +7,17 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { ExternalLink, Copy, Trash2, Edit, MoreVertical, Folder } from "lucide-react"
 import { useState } from "react"
+import { FolderBase } from "@/services/folders/types"
 
 interface FileCardProps {
-    id: string;
-    title: string;
-    thumbnail: string;
-    link: string;
-    category?: string;
-    lastModified?: string;
+    folder: FolderBase;
     isAdmin?: boolean;
     onUpdate?: (id: string) => void;
     onDelete?: (id: string) => void;
 }
 
 export function FileCard({
-    id,
-    title,
-    thumbnail,
-    link,
-    category,
-    lastModified,
+    folder,
     isAdmin = false,
     onUpdate,
     onDelete
@@ -34,12 +25,12 @@ export function FileCard({
     const [copied, setCopied] = useState(false)
 
     const handleOpenLink = () => {
-        window.open(link, '_blank', 'noopener,noreferrer')
+        window.open(folder.link, '_blank', 'noopener,noreferrer')
     }
 
     const handleCopyLink = async () => {
         try {
-            await navigator.clipboard.writeText(link)
+            await navigator.clipboard.writeText(folder.link)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {
@@ -49,14 +40,18 @@ export function FileCard({
 
     const handleUpdate = () => {
         if (onUpdate) {
-            onUpdate(id);
+            onUpdate(folder.id);
         }
     }
 
     const handleDelete = () => {
         if (onDelete) {
-            onDelete(id);
+            onDelete(folder.id);
         }
+    }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('id-ID')
     }
 
     return (
@@ -64,8 +59,8 @@ export function FileCard({
             {/* Thumbnail Section */}
             <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10">
                 <img
-                    src={thumbnail || "https://placehold.co/600x400"}
-                    alt={title}
+                    src={folder.image_url || "https://placehold.co/600x400"}
+                    alt={folder.title}
                     width={400}
                     height={300}
                     className="h-full w-full object-cover transition-transform group-hover:scale-105"
@@ -102,11 +97,11 @@ export function FileCard({
                 )}
 
                 {/* Category Badge */}
-                {category && (
+                {folder.description && (
                     <div className="absolute bottom-3 left-3">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-xs font-medium text-foreground rounded-full">
                             <Folder className="h-3 w-3" />
-                            {category}
+                            {folder.description}
                         </span>
                     </div>
                 )}
@@ -116,13 +111,11 @@ export function FileCard({
             <div className="p-4">
                 <div className="mb-3">
                     <h3 className="font-semibold text-foreground mb-1 line-clamp-2 leading-tight">
-                        {title}
+                        {folder.title}
                     </h3>
-                    {lastModified && (
-                        <p className="text-xs text-muted-foreground">
-                            Diperbarui {lastModified}
-                        </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">
+                        Diperbarui {formatDate(folder.updated_at)}
+                    </p>
                 </div>
 
                 {/* Action Buttons */}

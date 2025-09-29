@@ -1,3 +1,4 @@
+// fe\apps\vite-react-app\src\services\users\service.ts
 import { BaseService } from "../base";
 import { UserBase, UserCreate, UserPaginatedParams, UserResponsePaginated, UserUpdate } from "./types";
 

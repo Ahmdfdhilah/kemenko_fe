@@ -12,25 +12,40 @@ import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Upload, X, Image } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import { FolderBase } from "@/services/folders/types"
 
 export interface FolderData {
-    id?: string;
     title: string;
-    category: string;
+    description: string;
     link: string;
-    thumbnail: string;
+    image?: File;
+    removeImage?: boolean;
+}
+
+// Separate interface for form state to avoid type conflicts
+interface FormState {
+    title: string;
+    description: string;
+    link: string;
+    removeImage: boolean;
+}
+
+// Type for form validation errors
+interface FormErrors {
+    title?: string;
+    description?: string;
+    link?: string;
+    image?: string;
 }
 
 interface FolderModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (data: FolderData) => void;
-    folder?: FolderData | null;
+    folder?: FolderBase | null;
     mode: 'create' | 'edit';
     isLoading?: boolean;
 }
-
-const DEFAULT_PLACEHOLDER = 'https://placehold.co/600x400';
 
 export function FolderModal({
     isOpen,
@@ -40,15 +55,16 @@ export function FolderModal({
     mode,
     isLoading = false
 }: FolderModalProps) {
-    const [formData, setFormData] = useState<FolderData>({
+    const [formData, setFormData] = useState<FormState>({
         title: '',
-        category: '',
+        description: '',
         link: '',
-        thumbnail: ''
+        removeImage: false
     });
-    const [errors, setErrors] = useState<Partial<FolderData>>({});
+    const [errors, setErrors] = useState<FormErrors>({});
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>('');
+    const [willRemoveImage, setWillRemoveImage] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Initialize form data when modal opens
@@ -56,21 +72,22 @@ export function FolderModal({
         if (isOpen) {
             if (mode === 'edit' && folder) {
                 setFormData({
-                    id: folder.id,
                     title: folder.title,
-                    category: folder.category,
+                    description: folder.description || '',
                     link: folder.link,
-                    thumbnail: folder.thumbnail
+                    removeImage: false
                 });
-                setPreviewUrl(folder.thumbnail || DEFAULT_PLACEHOLDER);
+                setPreviewUrl(folder.image_url || '');
+                setWillRemoveImage(false);
             } else {
                 setFormData({
                     title: '',
-                    category: '',
+                    description: '',
                     link: '',
-                    thumbnail: ''
+                    removeImage: false
                 });
                 setPreviewUrl('');
+                setWillRemoveImage(false);
             }
             setErrors({});
             setUploadedFile(null);
@@ -87,36 +104,39 @@ export function FolderModal({
     };
 
     const validateForm = (): boolean => {
-        const newErrors: Partial<FolderData> = {};
-        
+        const newErrors: FormErrors = {};
+
         if (!formData.title.trim()) {
             newErrors.title = 'Judul wajib diisi';
         }
-        
-        if (!formData.category.trim()) {
-            newErrors.category = 'Kategori wajib diisi';
+
+        if (!formData.description.trim()) {
+            newErrors.description = 'Deskripsi wajib diisi';
         }
-        
+
         if (!formData.link.trim()) {
             newErrors.link = 'Link wajib diisi';
         } else if (!isValidUrl(formData.link)) {
             newErrors.link = 'Harap masukkan URL yang valid';
         }
 
-        if (!formData.thumbnail && !uploadedFile) {
-            newErrors.thumbnail = 'Gambar thumbnail wajib diisi';
+        // Check if image is required for create mode or if removing existing image
+        if (mode === 'create' && !uploadedFile) {
+            newErrors.image = 'Gambar thumbnail wajib diisi';
+        } else if (mode === 'edit' && willRemoveImage && !uploadedFile && !folder?.has_image) {
+            newErrors.image = 'Gambar thumbnail wajib diisi';
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleInputChange = (field: keyof FolderData, value: string) => {
+    const handleInputChange = (field: keyof FormState, value: string) => {
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
-        
+
         // Clear error for this field when user starts typing
         if (errors[field]) {
             setErrors(prev => ({
@@ -128,9 +148,16 @@ export function FolderModal({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (validateForm()) {
-            onSave(formData);
+            const submitData: FolderData = {
+                title: formData.title,
+                description: formData.description,
+                link: formData.link,
+                image: uploadedFile || undefined,
+                removeImage: willRemoveImage
+            };
+            onSave(submitData);
         }
     };
 
@@ -142,7 +169,7 @@ export function FolderModal({
         if (!file.type.startsWith('image/')) {
             setErrors(prev => ({
                 ...prev,
-                thumbnail: 'Harap pilih file gambar'
+                image: 'Harap pilih file gambar'
             }));
             return;
         }
@@ -151,43 +178,47 @@ export function FolderModal({
         if (file.size > 5 * 1024 * 1024) {
             setErrors(prev => ({
                 ...prev,
-                thumbnail: 'Ukuran file harus kurang dari 5MB'
+                image: 'Ukuran file harus kurang dari 5MB'
             }));
             return;
         }
 
         setUploadedFile(file);
-        
+        setWillRemoveImage(false); // Reset remove flag when new file is uploaded
+
         // Create preview URL
         const reader = new FileReader();
         reader.onload = (event) => {
             const result = event.target?.result as string;
             setPreviewUrl(result);
-            setFormData(prev => ({
-                ...prev,
-                thumbnail: result // Store base64 data URL
-            }));
         };
         reader.readAsDataURL(file);
 
         // Clear any previous errors
         setErrors(prev => ({
             ...prev,
-            thumbnail: undefined
+            image: undefined
         }));
     };
 
     const handleRemoveFile = () => {
         setUploadedFile(null);
-        setPreviewUrl('');
-        setFormData(prev => ({
-            ...prev,
-            thumbnail: ''
-        }));
+
+        if (mode === 'edit' && folder?.has_image) {
+            // Mark for removal if this is edit mode and folder has existing image
+            setWillRemoveImage(true);
+            setPreviewUrl('');
+        } else {
+            // For create mode, just clear preview
+            setPreviewUrl('');
+        }
+
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
+
+    const showImageRequired = mode === 'create' || (mode === 'edit' && (!folder?.has_image || willRemoveImage));
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -197,13 +228,13 @@ export function FolderModal({
                         {mode === 'create' ? 'Buat Folder Baru' : 'Edit Folder'}
                     </DialogTitle>
                     <DialogDescription>
-                        {mode === 'create' 
-                            ? 'Tambahkan folder baru untuk mengorganisir dokumen Anda.' 
+                        {mode === 'create'
+                            ? 'Tambahkan folder baru untuk mengorganisir dokumen Anda.'
                             : 'Perbarui informasi folder.'
                         }
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="flex-1 overflow-y-auto px-1">
                     <form onSubmit={handleSubmit} className="space-y-4 pb-4">
                         {/* Title Field */}
@@ -221,18 +252,19 @@ export function FolderModal({
                             )}
                         </div>
 
-                        {/* Category Field */}
+                        {/* Description Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="category">Kategori *</Label>
-                            <Input
-                                id="category"
-                                value={formData.category}
-                                onChange={(e) => handleInputChange('category', e.target.value)}
-                                placeholder="Masukkan kategori"
-                                className={errors.category ? "border-destructive" : ""}
+                            <Label htmlFor="description">Deskripsi *</Label>
+                            <Textarea
+                                id="description"
+                                value={formData.description}
+                                onChange={(e) => handleInputChange('description', e.target.value)}
+                                placeholder="Masukkan deskripsi folder"
+                                rows={2}
+                                className={`resize-none ${errors.description ? "border-destructive" : ""}`}
                             />
-                            {errors.category && (
-                                <p className="text-sm text-destructive">{errors.category}</p>
+                            {errors.description && (
+                                <p className="text-sm text-destructive">{errors.description}</p>
                             )}
                         </div>
 
@@ -254,16 +286,36 @@ export function FolderModal({
 
                         {/* Thumbnail Upload Section */}
                         <div className="space-y-3">
-                            <Label>Gambar Thumbnail *</Label>
-                            
+                            <Label>Gambar Thumbnail {showImageRequired && '*'}</Label>
+
+                            {/* Current Image Info for Edit Mode */}
+                            {mode === 'edit' && folder?.has_image && !willRemoveImage && !uploadedFile && (
+                                <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+                                    <p>Gambar saat ini akan tetap digunakan</p>
+                                </div>
+                            )}
+
+                            {/* Remove Current Image Option for Edit Mode */}
+                            {mode === 'edit' && folder?.has_image && !uploadedFile && (
+                                <div className="flex items-center space-x-2">
+                                    <Button
+                                        type="button"
+                                        variant={willRemoveImage ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setWillRemoveImage(!willRemoveImage)}
+                                    >
+                                        {willRemoveImage ? 'Batal Hapus Gambar' : 'Hapus Gambar Saat Ini'}
+                                    </Button>
+                                </div>
+                            )}
+
                             {/* File Upload Area */}
                             <div className="space-y-2">
                                 <div
-                                    className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                                        uploadedFile || previewUrl
-                                            ? 'border-primary bg-primary/5' 
+                                    className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${uploadedFile
+                                            ? 'border-primary bg-primary/5'
                                             : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5'
-                                    } ${errors.thumbnail ? 'border-destructive' : ''}`}
+                                        } ${errors.image ? 'border-destructive' : ''}`}
                                     onClick={() => fileInputRef.current?.click()}
                                 >
                                     <input
@@ -273,7 +325,7 @@ export function FolderModal({
                                         onChange={handleFileUpload}
                                         className="hidden"
                                     />
-                                    
+
                                     {uploadedFile ? (
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-center gap-2">
@@ -302,7 +354,9 @@ export function FolderModal({
                                         <div className="space-y-2">
                                             <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
                                             <div>
-                                                <p className="text-sm font-medium">Klik untuk mengunggah gambar</p>
+                                                <p className="text-sm font-medium">
+                                                    {mode === 'create' ? 'Klik untuk mengunggah gambar' : 'Klik untuk mengunggah gambar baru'}
+                                                </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     PNG, JPG, GIF maksimal 5MB
                                                 </p>
@@ -313,14 +367,16 @@ export function FolderModal({
                             </div>
 
                             {/* Error Message */}
-                            {errors.thumbnail && (
-                                <p className="text-sm text-destructive">{errors.thumbnail}</p>
+                            {errors.image && (
+                                <p className="text-sm text-destructive">{errors.image}</p>
                             )}
 
                             {/* Preview */}
-                            {previewUrl && (
+                            {previewUrl && !willRemoveImage && (
                                 <div className="space-y-2">
-                                    <Label className="text-sm text-muted-foreground">Pratinjau</Label>
+                                    <Label className="text-sm text-muted-foreground">
+                                        {uploadedFile ? 'Pratinjau Gambar Baru' : 'Gambar Saat Ini'}
+                                    </Label>
                                     <div className="relative w-full h-40 bg-muted rounded-lg overflow-hidden">
                                         <img
                                             src={previewUrl}
@@ -330,11 +386,19 @@ export function FolderModal({
                                                 setPreviewUrl('');
                                                 setErrors(prev => ({
                                                     ...prev,
-                                                    thumbnail: 'Gagal memuat pratinjau gambar'
+                                                    image: 'Gagal memuat pratinjau gambar'
                                                 }));
                                             }}
                                         />
                                     </div>
+                                </div>
+                            )}
+
+                            {willRemoveImage && (
+                                <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                                    <p className="text-sm text-destructive">
+                                        Gambar akan dihapus saat folder diperbarui
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -343,16 +407,16 @@ export function FolderModal({
 
                 {/* Footer Buttons */}
                 <DialogFooter className="flex-shrink-0 gap-2 sm:gap-0 pt-4 border-t">
-                    <Button 
-                        type="button" 
-                        variant="outline" 
+                    <Button
+                        type="button"
+                        variant="outline"
                         onClick={onClose}
                         disabled={isLoading}
                     >
                         Batal
                     </Button>
-                    <Button 
-                        type="submit" 
+                    <Button
+                        type="submit"
                         onClick={handleSubmit}
                         disabled={isLoading}
                     >

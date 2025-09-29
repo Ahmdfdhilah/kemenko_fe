@@ -16,6 +16,7 @@ import { AuthProvider } from './components/Auth/AuthProvider';
 import ThemeToggle from './components/common/ThemeToggle';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { AuthGuard } from './components/Auth/AuthGuard';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                   <BrowserRouter>
                     <AuthGuard>
                       <Toaster />
+                      <ReactQueryDevtools initialIsOpen={false} />
                       <ThemeToggle />
                       <Routes>
 
