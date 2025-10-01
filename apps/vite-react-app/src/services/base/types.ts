@@ -1,5 +1,5 @@
 //ENUM
-export type Sort  = 'asc'  | 'desc'
+export type Sort = 'asc' | 'desc'
 
 // USER SUMMARY 
 export interface UserSummary {

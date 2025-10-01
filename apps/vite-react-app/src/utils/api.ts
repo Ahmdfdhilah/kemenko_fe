@@ -9,12 +9,8 @@ import {
   clearAuth
 } from '@/redux/features/auth/auth';
 
-// Create axios instance
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Flag to prevent multiple refresh calls
@@ -70,7 +66,7 @@ const refreshTokens = async (): Promise<string | null> => {
 };
 
 const configureInterceptors = (api: AxiosInstance) => {
-  // Request interceptor to add bearer token
+  // Request interceptor to add bearer token and handle Content-Type
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const state = store.getState();
@@ -79,6 +75,22 @@ const configureInterceptors = (api: AxiosInstance) => {
       // Add bearer token to requests
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+
+      if (config.data instanceof FormData) {
+        // Delete Content-Type to let browser set it with boundary
+        delete config.headers['Content-Type'];
+        
+        for (const [key, value] of config.data.entries()) {
+          if (value instanceof File) {
+            console.log(`  ${key}:`, value.name, `(${value.size} bytes, ${value.type})`);
+          } else {
+            console.log(`  ${key}:`, value);
+          }
+        }
+      } else {
+        // Set JSON Content-Type for non-FormData requests
+        config.headers['Content-Type'] = 'application/json';
       }
 
       return config;

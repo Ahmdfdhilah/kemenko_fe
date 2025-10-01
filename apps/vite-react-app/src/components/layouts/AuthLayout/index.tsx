@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import loginImg from '@/assets/bgLogin.jpg';
+import loginImg from '@/assets/hero/img3.jpg';
 import logo from '@/assets/logo.webp';
 
 interface AuthLayoutProps {

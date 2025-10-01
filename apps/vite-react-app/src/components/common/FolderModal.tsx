@@ -12,23 +12,7 @@ import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Upload, X, Image } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
-import { FolderBase } from "@/services/folders/types"
-
-export interface FolderData {
-    title: string;
-    description: string;
-    link: string;
-    image?: File;
-    removeImage?: boolean;
-}
-
-// Separate interface for form state to avoid type conflicts
-interface FormState {
-    title: string;
-    description: string;
-    link: string;
-    removeImage: boolean;
-}
+import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
 
 // Type for form validation errors
 interface FormErrors {
@@ -41,7 +25,7 @@ interface FormErrors {
 interface FolderModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (data: FolderData) => void;
+    onSave: (data: FolderCreate | FolderUpdate) => void;
     folder?: FolderBase | null;
     mode: 'create' | 'edit';
     isLoading?: boolean;
@@ -55,12 +39,9 @@ export function FolderModal({
     mode,
     isLoading = false
 }: FolderModalProps) {
-    const [formData, setFormData] = useState<FormState>({
-        title: '',
-        description: '',
-        link: '',
-        removeImage: false
-    });
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [link, setLink] = useState('');
     const [errors, setErrors] = useState<FormErrors>({});
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -71,21 +52,15 @@ export function FolderModal({
     useEffect(() => {
         if (isOpen) {
             if (mode === 'edit' && folder) {
-                setFormData({
-                    title: folder.title,
-                    description: folder.description || '',
-                    link: folder.link,
-                    removeImage: false
-                });
+                setTitle(folder.title);
+                setDescription(folder.description || '');
+                setLink(folder.link);
                 setPreviewUrl(folder.image_url || '');
                 setWillRemoveImage(false);
             } else {
-                setFormData({
-                    title: '',
-                    description: '',
-                    link: '',
-                    removeImage: false
-                });
+                setTitle('');
+                setDescription('');
+                setLink('');
                 setPreviewUrl('');
                 setWillRemoveImage(false);
             }
@@ -106,17 +81,17 @@ export function FolderModal({
     const validateForm = (): boolean => {
         const newErrors: FormErrors = {};
 
-        if (!formData.title.trim()) {
+        if (!title.trim()) {
             newErrors.title = 'Judul wajib diisi';
         }
 
-        if (!formData.description.trim()) {
+        if (!description.trim()) {
             newErrors.description = 'Deskripsi wajib diisi';
         }
 
-        if (!formData.link.trim()) {
+        if (!link.trim()) {
             newErrors.link = 'Link wajib diisi';
-        } else if (!isValidUrl(formData.link)) {
+        } else if (!isValidUrl(link)) {
             newErrors.link = 'Harap masukkan URL yang valid';
         }
 
@@ -131,33 +106,28 @@ export function FolderModal({
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleInputChange = (field: keyof FormState, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-
-        // Clear error for this field when user starts typing
-        if (errors[field]) {
-            setErrors(prev => ({
-                ...prev,
-                [field]: undefined
-            }));
-        }
-    };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (validateForm()) {
-            const submitData: FolderData = {
-                title: formData.title,
-                description: formData.description,
-                link: formData.link,
-                image: uploadedFile || undefined,
-                removeImage: willRemoveImage
-            };
-            onSave(submitData);
+            if (mode === 'create') {
+                const createData: FolderCreate = {
+                    title,
+                    description,
+                    link,
+                    image: uploadedFile || undefined,
+                };
+                onSave(createData);
+            } else {
+                const updateData: FolderUpdate = {
+                    title,
+                    description,
+                    link,
+                    image: uploadedFile || undefined,
+                    remove_image: willRemoveImage
+                };
+                onSave(updateData);
+            }
         }
     };
 
@@ -184,7 +154,7 @@ export function FolderModal({
         }
 
         setUploadedFile(file);
-        setWillRemoveImage(false); // Reset remove flag when new file is uploaded
+        setWillRemoveImage(false);
 
         // Create preview URL
         const reader = new FileReader();
@@ -205,11 +175,9 @@ export function FolderModal({
         setUploadedFile(null);
 
         if (mode === 'edit' && folder?.has_image) {
-            // Mark for removal if this is edit mode and folder has existing image
             setWillRemoveImage(true);
             setPreviewUrl('');
         } else {
-            // For create mode, just clear preview
             setPreviewUrl('');
         }
 
@@ -242,8 +210,13 @@ export function FolderModal({
                             <Label htmlFor="title">Judul *</Label>
                             <Input
                                 id="title"
-                                value={formData.title}
-                                onChange={(e) => handleInputChange('title', e.target.value)}
+                                value={title}
+                                onChange={(e) => {
+                                    setTitle(e.target.value);
+                                    if (errors.title) {
+                                        setErrors(prev => ({ ...prev, title: undefined }));
+                                    }
+                                }}
                                 placeholder="Masukkan judul folder"
                                 className={errors.title ? "border-destructive" : ""}
                             />
@@ -257,8 +230,13 @@ export function FolderModal({
                             <Label htmlFor="description">Deskripsi *</Label>
                             <Textarea
                                 id="description"
-                                value={formData.description}
-                                onChange={(e) => handleInputChange('description', e.target.value)}
+                                value={description}
+                                onChange={(e) => {
+                                    setDescription(e.target.value);
+                                    if (errors.description) {
+                                        setErrors(prev => ({ ...prev, description: undefined }));
+                                    }
+                                }}
                                 placeholder="Masukkan deskripsi folder"
                                 rows={2}
                                 className={`resize-none ${errors.description ? "border-destructive" : ""}`}
@@ -273,8 +251,13 @@ export function FolderModal({
                             <Label htmlFor="link">Link Google Drive *</Label>
                             <Textarea
                                 id="link"
-                                value={formData.link}
-                                onChange={(e) => handleInputChange('link', e.target.value)}
+                                value={link}
+                                onChange={(e) => {
+                                    setLink(e.target.value);
+                                    if (errors.link) {
+                                        setErrors(prev => ({ ...prev, link: undefined }));
+                                    }
+                                }}
                                 placeholder="https://drive.google.com/drive/folders/..."
                                 rows={3}
                                 className={`resize-none ${errors.link ? "border-destructive" : ""}`}

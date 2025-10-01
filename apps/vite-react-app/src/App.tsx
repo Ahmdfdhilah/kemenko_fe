@@ -11,12 +11,10 @@ import { AuthLayout } from './components/layouts/AuthLayout';
 import { MainLayout } from './components/layouts/MainLayout';
 import Dashboard from './pages/Dashboard/DashboardPage';
 import UnauthorizedPage from './pages/Unauthorized/UnauthorizedPage';
-import { ThemeProvider } from './providers/ThemeProvider';
-import { AuthProvider } from './components/Auth/AuthProvider';
-import ThemeToggle from './components/common/ThemeToggle';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { AuthGuard } from './components/Auth/AuthGuard';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { AuthProvider } from './components/Auth/AuthProvider';
 
 function App() {
   return (
@@ -26,12 +24,12 @@ function App() {
           <PersistGate loading={null} persistor={persistor}>
             <QueryProvider>
               <AuthProvider>
-                <ThemeProvider>
+                {/* <ThemeProvider> */}
                   <BrowserRouter>
                     <AuthGuard>
                       <Toaster />
                       <ReactQueryDevtools initialIsOpen={false} />
-                      <ThemeToggle />
+                      {/* <ThemeToggle /> */}
                       <Routes>
 
                         {/* Auth route - Public */}
@@ -81,7 +79,7 @@ function App() {
                       </Routes>
                     </AuthGuard>
                   </BrowserRouter>
-                </ThemeProvider>
+                {/* </ThemeProvider> */}
               </AuthProvider>
             </QueryProvider>
           </PersistGate>

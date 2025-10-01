@@ -13,7 +13,7 @@ export class FolderService extends BaseService {
         super('/folders')
     }
 
-    async folderCreate(data: FolderCreate): Promise<string> {
+    async folderCreate(data: FolderCreate): Promise<{ message: string }> {
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('link', data.link);
@@ -26,10 +26,10 @@ export class FolderService extends BaseService {
             formData.append('image', data.image);
         }
 
-        return this.post<string>('/', formData);
+        return this.post<{ message: string }>('', formData);
     }
 
-    async folderUpdate(data: FolderUpdate, id: string): Promise<string> {
+    async folderUpdate(data: FolderUpdate, id: string): Promise<{ message: string }> {
         const formData = new FormData();
 
         if (data.title !== undefined) {
@@ -52,15 +52,15 @@ export class FolderService extends BaseService {
             formData.append('image', data.image);
         }
 
-        return this.put<string>(`/${id}`, formData);
+        return this.put<{ message: string }>(`/${id}`, formData);
     }
 
-    async folderDelete(id: string): Promise<string> {
-        return this.delete<string>(`/${id}`)
+    async folderDelete(id: string): Promise<{ message: string }> {
+        return this.delete<{ message: string }>(`/${id}`)
     }
 
     async folderGetAll(params: FolderPaginatedParams): Promise<FolderResponsePaginated> {
-        return this.get<FolderResponsePaginated>(`/`)
+        return this.get<FolderResponsePaginated>(`${this.buildQuery(params)}`)
     }
 
 

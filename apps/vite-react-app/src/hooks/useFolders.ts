@@ -24,9 +24,9 @@ export const useCreateFolder = () => {
 
     return useMutation({
         mutationFn: (data: FolderCreate) => folderService.folderCreate(data),
-        onSuccess: (message) => {
+        onSuccess: (response) => {
             toast.success('Success', {
-                description: message || 'Folder berhasil dibuat'
+                description: response.message || 'Folder berhasil dibuat'
             })
             queryClient.invalidateQueries({ queryKey: ['folders'] })
         },
@@ -44,9 +44,9 @@ export const useUpdateFolder = () => {
     return useMutation({
         mutationFn: ({ data, id }: { data: FolderUpdate; id: string }) =>
             folderService.folderUpdate(data, id),
-        onSuccess: (message) => {
+        onSuccess: (response) => {
             toast.success('Success', {
-                description: message || 'Folder berhasil diperbarui'
+                description: response.message || 'Folder berhasil diperbarui'
             })
             queryClient.invalidateQueries({ queryKey: ['folders'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
@@ -64,9 +64,9 @@ export const useDeleteFolder = () => {
 
     return useMutation({
         mutationFn: (id: string) => folderService.folderDelete(id),
-        onSuccess: (message) => {
+        onSuccess: (response) => {
             toast.success('Success', {
-                description: message || 'Folder berhasil dihapus'
+                description: response.message || 'Folder berhasil dihapus'
             })
             queryClient.invalidateQueries({ queryKey: ['folders'] })
         },

@@ -1,13 +1,15 @@
 import { Button } from "@workspace/ui/components/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@workspace/ui/components/dropdown-menu"
-import { ExternalLink, Copy, Trash2, Edit, MoreVertical, Folder } from "lucide-react"
+import { ExternalLink, Copy, Trash2, Edit } from "lucide-react"
 import { useState } from "react"
-import { FolderBase } from "@/services/folders/types"
+
+interface FolderBase {
+    id: string;
+    title: string;
+    description: string;
+    link: string;
+    image_url: string;
+    updated_at: string;
+}
 
 interface FileCardProps {
     folder: FolderBase;
@@ -16,6 +18,7 @@ interface FileCardProps {
     onDelete?: (id: string) => void;
 }
 
+
 export function FileCard({
     folder,
     isAdmin = false,
@@ -23,6 +26,7 @@ export function FileCard({
     onDelete
 }: FileCardProps) {
     const [copied, setCopied] = useState(false)
+
 
     const handleOpenLink = () => {
         window.open(folder.link, '_blank', 'noopener,noreferrer')
@@ -55,89 +59,97 @@ export function FileCard({
     }
 
     return (
-        <div className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-accent">
-            {/* Thumbnail Section */}
-            <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10">
+        <div className={`group relative overflow-hidden rounded-xl border shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 hover:border-primary/50`}>
+            {/* Decorative Background Pattern */}
+            <svg
+                className={`absolute bottom-0 left-0 mb-8 opacity-5 text-chart-1`}
+                viewBox="0 0 375 283"
+                fill="none"
+                style={{ transform: 'scale(1.5)' }}
+            >
+                <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="currentColor" />
+                <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="currentColor" />
+            </svg>
+
+            {/* Image Section with Gradient Overlay */}
+            <div className="relative aspect-[4/3] overflow-hidden flex items-center justify-center p-4">
                 <img
-                    src={folder.image_url || "https://placehold.co/600x400"}
+                    src={folder.image_url}
                     alt={folder.title}
-                    width={400}
-                    height={300}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    className="max-h-72 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
                 />
 
-                {/* Admin Menu */}
-                {isAdmin && (
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-8 w-8 p-0 bg-background/90 backdrop-blur-sm hover:bg-background"
-                                >
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" className="w-40">
-                                <DropdownMenuItem onClick={handleUpdate} className="cursor-pointer">
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Perbarui
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={handleDelete}
-                                    className="cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10"
-                                >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Hapus
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )}
+                {/* Hover Action Buttons */}
+                <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleOpenLink}
+                        className="bg-white/90 hover:bg-white text-foreground backdrop-blur-sm shadow-lg"
+                    >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Buka
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleCopyLink}
+                        className="bg-white/90 hover:bg-white text-foreground backdrop-blur-sm shadow-lg"
+                    >
+                        <Copy className="h-4 w-4 mr-2" />
+                        {copied ? 'Tersalin!' : 'Salin'}
+                    </Button>
 
-                {/* Category Badge */}
-                {folder.description && (
-                    <div className="absolute bottom-3 left-3">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-xs font-medium text-foreground rounded-full">
-                            <Folder className="h-3 w-3" />
-                            {folder.description}
-                        </span>
-                    </div>
-                )}
+                    {/* Admin Actions */}
+                    {isAdmin && (
+                        <>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleUpdate}
+                                className="bg-blue-500/90 hover:bg-blue-500 text-white backdrop-blur-sm shadow-lg"
+                            >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleDelete}
+                                className="bg-destructive/90 hover:bg-destructive text-destructive-foreground backdrop-blur-sm shadow-lg"
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Hapus
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Content Section */}
-            <div className="p-4">
-                <div className="mb-3">
-                    <h3 className="font-semibold text-foreground mb-1 line-clamp-2 leading-tight">
-                        {folder.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
+            <div className="relative p-6">
+                <div className="mb-1">
+                    <p className={`text-xs uppercase tracking-wide font-medium opacity-60 text-chart-1`}>
                         Diperbarui {formatDate(folder.updated_at)}
                     </p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                    <Button
-                        variant="default"
-                        size="sm"
-                        onClick={handleOpenLink}
-                        className="flex-1 text-xs"
-                    >
-                        <ExternalLink className="h-3 w-3 mr-1.5" />
-                        Buka
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCopyLink}
-                        className="flex-1 text-xs"
-                    >
-                        <Copy className="h-3 w-3 mr-1.5" />
-                        {copied ? 'Tersalin!' : 'Salin'}
-                    </Button>
+                <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-xl text-foreground mb-2 line-clamp-2 leading-tight">
+                            {folder.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                            {folder.description}
+                        </p>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="flex-shrink-0">
+                        <div className={`bg-chart-1/20 text-chart-1 rounded-full px-3 py-1.5 text-xs font-bold leading-none flex items-center`}>
+                            {isAdmin ? 'Admin' : 'Aktif'}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
