@@ -103,7 +103,7 @@ export default function HomePage() {
             <HeroSection
                 title={
                     <div className='md:max-w-2xl lg:max-w-3xl'>
-                        <p className='uppercase text-sm sm:text-base lg:text-xl font-thin my-1 sm:my-2 tracking-wide'>KEMENKO PANGAN</p>
+                        <p className='uppercase text-sm sm:text-base lg:text-xl font-thin my-1 sm:my-2 tracking-wide'>INSPEKTORAT KEMENKO PANGAN</p>
                         Kelola Dokumen Lebih
                         <span className='text-tertiary'>  Mudah <span className="text-popover"> dan</span> Terintegrasi</span>
                     </div>
@@ -223,11 +223,10 @@ export default function HomePage() {
                 mode={modalMode}
                 isLoading={isLoading}
             />
-
-            {/* Delete Confirmation Dialog */}
             {deletingFolderId && (
-                <ConfirmationDialog
-                    triggerText={<div />}
+                < ConfirmationDialog
+                    isOpen={!!deletingFolderId}
+                    onClose={() => setDeletingFolderId(null)}
                     title="Hapus Folder"
                     description="Apakah Anda yakin ingin menghapus folder ini? Tindakan ini tidak dapat dibatalkan."
                     onConfirm={() => handleDeleteFolder(deletingFolderId)}
@@ -236,7 +235,8 @@ export default function HomePage() {
                     isLoading={deleteFolderMutation.isPending}
                     variant="destructive"
                 />
-            )}
+            )
+            }
         </div>
     )
 }

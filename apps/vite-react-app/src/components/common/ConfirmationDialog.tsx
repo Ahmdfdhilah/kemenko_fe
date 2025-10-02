@@ -7,63 +7,58 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
-import { Button } from "@workspace/ui/components/button";
-import React, { ReactNode } from 'react';
-
 type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost";
 
 interface ConfirmationDialogProps {
-    triggerText: ReactNode
+    isOpen: boolean
+    onClose: () => void
     title: string
     description: string
     onConfirm: () => Promise<void> | void
     confirmText?: string
     cancelText?: string
     isLoading?: boolean
-    variant?: ButtonVariant;
+    variant?: ButtonVariant
 }
 
 export function ConfirmationDialog({
-    triggerText,
+    isOpen,
+    onClose,
     title,
     description,
     onConfirm,
     confirmText = "Konfirmasi",
     cancelText = "Batal",
     isLoading = false,
-    variant
+    variant = "default"
 }: ConfirmationDialogProps) {
-    const [isOpen, setIsOpen] = React.useState(false);
-
     const handleConfirm = async () => {
         await onConfirm();
-        setIsOpen(false);
     };
 
     return (
-        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-            <AlertDialogTrigger asChild>
-                {triggerText}
-            </AlertDialogTrigger>
+        <AlertDialog open={isOpen} onOpenChange={onClose}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
-                    <AlertDialogDescription>{description}</AlertDialogDescription>
+                    <AlertDialogDescription>
+                        {description}
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel asChild>
-                        {/* Teruskan varian ke AlertDialogCancel */}
-                        <Button variant="outline" onClick={() => setIsOpen(false)}>
-                            {cancelText}
-                        </Button>
+                    <AlertDialogCancel 
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
+                        {cancelText}
                     </AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                        {/* Teruskan varian ke AlertDialogAction */}
-                        <Button variant={variant || "default"} onClick={handleConfirm} disabled={isLoading}>
-                            {isLoading ? "Memproses..." : confirmText}
-                        </Button>
+                    <AlertDialogAction
+                        onClick={handleConfirm}
+                        disabled={isLoading}
+                        className={variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+                    >
+                        {isLoading ? "Memproses..." : confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

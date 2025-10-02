@@ -7,20 +7,20 @@ export class UserService extends BaseService {
         super('/users')
     }
 
-    async userCreate(data: UserCreate): Promise<string> {
-        return this.post<string>('/', data);
+    async userCreate(data: UserCreate): Promise<{ message: string }> {
+        return this.post<{ message: string }>('', data);
     }
 
-    async userUpdate(data: UserUpdate, id: string): Promise<string> {
-        return this.put<string>(`/${id}`, data)
+    async userUpdate(data: UserUpdate, id: string): Promise<{ message: string }> {
+        return this.put<{ message: string }>(`/${id}`, data)
     }
 
-    async userDelete(id: string): Promise<string> {
-        return this.delete<string>(`/${id}`)
+    async userDelete(id: string): Promise<{ message: string }> {
+        return this.delete<{ message: string }>(`/${id}`)
     }
 
     async userGetAll(params: UserPaginatedParams): Promise<UserResponsePaginated> {
-        return this.get<UserResponsePaginated>(`/${this.buildQuery(params)}`)
+        return this.get<UserResponsePaginated>(`${this.buildQuery(params)}`)
     }
 
     async userGetById(id: string): Promise<UserBase> {

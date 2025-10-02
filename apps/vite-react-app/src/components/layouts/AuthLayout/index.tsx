@@ -51,7 +51,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               className="w-16 h-16 mb-4 object-contain"
             />
             <h1 className="text-2xl font-bold text-foreground mb-2">
-             Kemenko Pangan RI
+             Inspektorat Kemenko Pangan RI
             </h1>
             <p className="text-sm text-muted-foreground text-center">
              Aplikasi Manajemen Folder

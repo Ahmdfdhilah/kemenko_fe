@@ -48,7 +48,7 @@ export default function Footer() {
                                     className="h-16 mb-6 drop-shadow-lg"
                                     alt={companyInfo.name}
                                 />
-                                <h2 className="font-bold text-3xl  text-white leading-tight drop-shadow-md">
+                                <h2 className="font-bold text-xl md:text-2xl lg:text-3xl text-white leading-tight drop-shadow-md">
                                     {companyInfo.name}
                                 </h2>
                             </div>

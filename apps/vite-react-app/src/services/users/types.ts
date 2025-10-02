@@ -16,11 +16,19 @@ export interface UserBase extends Base {
 export interface UserResponsePaginated extends PaginatedResponse<UserBase> { }
 
 //REQUEST
-export interface UserCreate extends UserBase {
+export interface UserCreate {
     password: string;
+    name: string;
+    email: string;
+    role: UserRole;
 }
 
-export interface UserUpdate extends UserCreate { }
+export interface UserUpdate {
+    name?: string;
+    email?: string;
+    role?: UserRole;
+    password?: string  | null;
+}
 
 // QUERY
 export interface UserPaginatedParams {

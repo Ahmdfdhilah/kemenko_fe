@@ -26,6 +26,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { getPageNumbers } from "@/utils/pagination"
 
 export default function FoldersPage() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -39,13 +40,14 @@ export default function FoldersPage() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
 
     // Debounce search term
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(searchTerm)
-            setCurrentPage(1) // Reset to first page on search
+            setCurrentPage(1)
         }, 500)
 
         return () => clearTimeout(timer)
@@ -83,15 +85,29 @@ export default function FoldersPage() {
         }
     }
 
-    const handleDeleteFolder = async (id: string) => {
-        deleteFolderMutation.mutate(id, {
+    const handleDeleteClick = (id: string) => {
+        setDeletingFolderId(id)
+        setDeleteDialogOpen(true)
+    }
+
+    const handleDeleteConfirm = async () => {
+        if (!deletingFolderId) return
+
+        deleteFolderMutation.mutate(deletingFolderId, {
             onSuccess: () => {
+                setDeleteDialogOpen(false)
                 setDeletingFolderId(null)
             },
             onError: () => {
+                setDeleteDialogOpen(false)
                 setDeletingFolderId(null)
             }
         })
+    }
+
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false)
+        setDeletingFolderId(null)
     }
 
     const handleSaveFolder = async (data: FolderCreate | FolderUpdate) => {
@@ -143,40 +159,7 @@ export default function FoldersPage() {
     const folders = foldersResponse?.items || []
     const meta = foldersResponse?.meta
 
-    // Calculate total pages
     const totalPages = meta ? Math.ceil(meta.total_pages / itemsPerPage) : 0
-
-    // Generate page numbers for pagination
-    const getPageNumbers = () => {
-        const pages = []
-        const maxPagesToShow = 5
-
-        if (totalPages <= maxPagesToShow) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i)
-            }
-        } else {
-            if (currentPage <= 3) {
-                for (let i = 1; i <= 4; i++) pages.push(i)
-                pages.push('...')
-                pages.push(totalPages)
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1)
-                pages.push('...')
-                for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
-            } else {
-                pages.push(1)
-                pages.push('...')
-                pages.push(currentPage - 1)
-                pages.push(currentPage)
-                pages.push(currentPage + 1)
-                pages.push('...')
-                pages.push(totalPages)
-            }
-        }
-
-        return pages
-    }
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -313,7 +296,7 @@ export default function FoldersPage() {
                                     folder={folder}
                                     isAdmin={user?.role === 'admin'}
                                     onUpdate={handleEditFolder}
-                                    onDelete={(id) => setDeletingFolderId(id)}
+                                    onDelete={handleDeleteClick}
                                 />
                             ))}
                         </div>
@@ -345,7 +328,7 @@ export default function FoldersPage() {
                                     </Button>
 
                                     <div className="flex gap-1">
-                                        {getPageNumbers().map((page, index) => (
+                                        {getPageNumbers(totalPages, currentPage).map((page, index) => (
                                             page === '...' ? (
                                                 <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
                                                     ...
@@ -399,18 +382,17 @@ export default function FoldersPage() {
             />
 
             {/* Delete Confirmation Dialog */}
-            {deletingFolderId && (
-                <ConfirmationDialog
-                    triggerText={<div />}
-                    title="Hapus Folder"
-                    description="Apakah Anda yakin ingin menghapus folder ini? Tindakan ini tidak dapat dibatalkan."
-                    onConfirm={() => handleDeleteFolder(deletingFolderId)}
-                    confirmText="Hapus"
-                    cancelText="Batal"
-                    isLoading={deleteFolderMutation.isPending}
-                    variant="destructive"
-                />
-            )}
+            <ConfirmationDialog
+                isOpen={deleteDialogOpen}
+                onClose={handleDeleteCancel}
+                onConfirm={handleDeleteConfirm}
+                title="Hapus Folder"
+                description="Apakah Anda yakin ingin menghapus folder ini? Tindakan ini tidak dapat dibatalkan."
+                confirmText="Hapus"
+                cancelText="Batal"
+                isLoading={deleteFolderMutation.isPending}
+                variant="destructive"
+            />
         </div>
     )
 }
