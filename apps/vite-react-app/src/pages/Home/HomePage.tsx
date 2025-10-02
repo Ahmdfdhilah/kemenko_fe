@@ -14,14 +14,13 @@ import HeroSection from "@/components/common/HeroSection"
 import Gallery from "@/components/common/Gallery"
 import { ScrollToTopLink } from "@/components/common/ScrollToTopLink"
 
-export default function DashboardPage() {
+export default function HomePage() {
     const [searchTerm, setSearchTerm] = useState("")
     const { user } = useAuth()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
-
 
     const {
         data: foldersResponse,

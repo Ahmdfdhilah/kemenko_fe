@@ -8,13 +8,14 @@ import { Toaster } from "@workspace/ui/components/sonner";
 import { LoginPage } from './pages/Auth/Login/LoginPage';
 import { QueryProvider } from './providers/QueryProvider';
 import { AuthLayout } from './components/layouts/AuthLayout';
-import Dashboard from './pages/Dashboard/DashboardPage';
+import Dashboard from './pages/Home/HomePage';
 import UnauthorizedPage from './pages/Unauthorized/UnauthorizedPage';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { AuthGuard } from './components/Auth/AuthGuard';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './components/Auth/AuthProvider';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
+import FoldersPage from './pages/Folders/FoldersPage';
 
 function App() {
   return (
@@ -49,8 +50,16 @@ function App() {
                         <Route
                           path="/"
                           element={
-                            <ProtectedRoute requiredRoles={['admin']}>
+                            <ProtectedRoute requiredRoles={['admin', 'user']}>
                               <Dashboard />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/folders"
+                          element={
+                            <ProtectedRoute requiredRoles={['admin', 'user']}>
+                              <FoldersPage />
                             </ProtectedRoute>
                           }
                         />
