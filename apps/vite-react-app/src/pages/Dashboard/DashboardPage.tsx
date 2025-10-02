@@ -12,6 +12,7 @@ import { useFolders, useCreateFolder, useUpdateFolder, useDeleteFolder } from '@
 import { useAuth } from "@/hooks/useAuth"
 import HeroSection from "@/components/common/HeroSection"
 import Gallery from "@/components/common/Gallery"
+import { ScrollToTopLink } from "@/components/common/ScrollToTopLink"
 
 export default function DashboardPage() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -20,8 +21,7 @@ export default function DashboardPage() {
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pageLimit] = useState(12)
+
 
     const {
         data: foldersResponse,
@@ -29,8 +29,8 @@ export default function DashboardPage() {
         error: foldersError,
         refetch: refetchFolders
     } = useFolders({
-        page: currentPage,
-        limit: pageLimit,
+        page: 1,
+        limit: 20,
         search: searchTerm || null,
         sort_by: 'updated_at',
         sort_type: 'desc'
@@ -92,10 +92,6 @@ export default function DashboardPage() {
         setEditingFolder(null)
     }
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page)
-    }
-
     const isLoading = isLoadingFolders ||
         createFolderMutation.isPending ||
         updateFolderMutation.isPending ||
@@ -117,8 +113,11 @@ export default function DashboardPage() {
 
             <div className="px-4 md:px-6 lg:px-8 xl:px-12">
                 <Gallery />
-                <div className="flex items-center justify-between  px-4 md:px-6 py-4">
+                <div className="flex flex-col lg:flex-row gap-4 justify-between  px-4 md:px-6 py-4">
                     <div className="w-full max-w-md">
+                        <h2 className="text-3xl lg:text-5xl font-extrabold text-foreground mb-4">
+                            Dokumen<span className="text-tertiary"> Terbaru</span>
+                        </h2>
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
                             <Input
@@ -200,33 +199,19 @@ export default function DashboardPage() {
                                     />
                                 ))}
                             </div>
-
-                            {/* Pagination */}
-                            {foldersResponse && foldersResponse.meta.total_pages > 1 && (
-                                <div className="flex justify-center items-center gap-2 mt-8">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={!foldersResponse.meta.has_prev || isLoading}
-                                    >
-                                        Previous
-                                    </Button>
-
-                                    <span className="text-sm text-muted-foreground">
-                                        Page {currentPage} of {foldersResponse.meta.total_pages}
-                                    </span>
-
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={!foldersResponse.meta.has_next || isLoading}
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
-                            )}
                         </>
                     )}
+                    {
+                        foldersResponse?.meta.has_next ? (
+                            <>
+                                <ScrollToTopLink to='/folders'>
+                                    <p className="p-3 rounded-lg bg-primary text-popover font-bold w-fit hover:bg-primary/80">Lihat lebih banyak</p>
+                                </ScrollToTopLink>
+                            </>
+                        ) : (
+                            null
+                        )
+                    }
                 </div>
             </div>
 

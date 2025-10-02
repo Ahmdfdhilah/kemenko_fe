@@ -1,0 +1,151 @@
+// apps/vite-react-app/src/components/layouts/DashboardLayout/UserDropdown.tsx
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@workspace/ui/components/button';
+import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@workspace/ui/components/dropdown-menu';
+import {
+    ChevronDown,
+    LogOut,
+    // User,
+    Loader2,
+} from 'lucide-react';
+import { cn } from '@workspace/ui/lib/utils';
+import { useState } from 'react';
+// import { ScrollToTopLink } from '@/components/common/ScrollToTopLink';
+import { useAuth } from '@/hooks/useAuth';
+
+interface UserDropdownProps {
+    collapsed?: boolean;
+    className?: string;
+}
+
+export function UserDropdown({ collapsed = false, className }: UserDropdownProps) {
+    const { user, logout } = useAuth();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const navigate = useNavigate();
+
+    // Get user initials for avatar fallback
+    const getUserInitials = () => {
+        const name = user?.name;
+        if (!name) return 'U';
+        const nameParts = name.split(' ');
+        if (nameParts.length >= 2) {
+            return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
+    };
+
+    // Get user display name
+    const getUserDisplayName = () => {
+        return user?.name || 'User';
+    };
+
+
+    const handleLogout = async () => {
+        try {
+            setIsLoggingOut(true);
+            await logout();
+            navigate('/login', { replace: true });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
+    if (!user) {
+        return (
+            <div className={cn("flex", collapsed ? "justify-center" : "justify-start", className)}>
+                <div className="animate-pulse">
+                    <div className="h-8 w-8 bg-muted rounded-full"></div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={cn("flex", collapsed ? "justify-center" : "justify-start", className)}>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className={cn(
+                            "hover:bg-transparent",
+                            collapsed ? "p-1.5 flex items-center justify-center h-auto" : "p-2 flex items-center space-x-2 w-full"
+                        )}
+                        disabled={isLoggingOut}
+                    >
+                        <div className="relative">
+                            <Avatar className={cn("flex-shrink-0", collapsed ? "h-5 w-5" : "h-6 w-6")}>
+                                <AvatarFallback className={cn(collapsed ? "text-[10px]" : "text-xs")}>
+                                    {getUserInitials()}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
+                        {!collapsed && (
+                            <>
+                                <div className="flex flex-col items-start text-left flex-1 min-w-0">
+                                    <span className="text-sm font-medium text-sidebar-foreground truncate w-full">
+                                        {getUserDisplayName()}
+                                    </span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                            </>
+                        )}
+                    </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align={collapsed ? "start" : "end"} className="w-56" side={collapsed ? "right" : "bottom"}>
+                    <DropdownMenuLabel>
+                        <div className="flex flex-col space-y-1">
+                            <span className="font-medium truncate" title={getUserDisplayName()}>
+                                {getUserDisplayName()}
+                            </span>
+                            {user.email && (
+                                <span className="text-xs text-muted-foreground truncate" title={user.email}>
+                                    {user.email}
+                                </span>
+                            )}
+                        </div>
+                    </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+
+                    {/* <DropdownMenuItem asChild>
+                        <ScrollToTopLink to="/profile" className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile</span>
+                        </ScrollToTopLink>
+                    </DropdownMenuItem> */}
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                    >
+                        {isLoggingOut ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <span>Signing out...</span>
+                            </>
+                        ) : (
+                            <>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Sign out</span>
+                            </>
+                        )}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    );
+}

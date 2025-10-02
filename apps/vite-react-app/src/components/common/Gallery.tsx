@@ -1,15 +1,15 @@
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { AnimatedSection } from "@workspace/ui/components/ui/animated-section"
 import { Section } from "@workspace/ui/components/ui/section"
-import { Upload, Search, Folder } from "lucide-react"
+import {  Search, Folder, FolderUpIcon } from "lucide-react"
 import placeholderImg from '@/assets/placeholder/placeholder.jpeg';
 
 const Gallery = () => {
     const features = [
         {
-            icon: <Upload className="w-10 h-10 lg:w-12 lg:h-12 text-primary" />,
-            title: "Upload & Simpan Dokumen",
-            description: "Unggah file dokumen dengan mudah ke dalam sistem folder digital terintegrasi.",
+            icon: <FolderUpIcon className="w-10 h-10 lg:w-12 lg:h-12 text-primary" />,
+            title: "Simpan Drive",
+            description: "Menyimpan dokumen dengan mudah ke dalam sistem folder digital terintegrasi.",
         },
         {
             icon: <Search className="w-10 h-10 lg:w-12 lg:h-12 text-primary" />,
