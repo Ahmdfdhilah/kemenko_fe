@@ -108,7 +108,7 @@ export default function HomePage() {
                         <span className='text-tertiary'>  Mudah <span className="text-popover"> dan</span> Terintegrasi</span>
                     </div>
                 }
-                subtitle='SIMF adalah aplikasi resmi Kemenko Pangan untuk manajemen folder digital yang aman, cepat, dan efisien dalam mendukung pengelolaan dokumen organisasi.' />
+                subtitle='SIMF adalah aplikasi internal Inspektorat Kemenko Pangan yang dirancang khusus untuk mempermudah manajemen folder digital yang aman, cepat, dan efisien dalam mendukung pengelolaan dokumen dan pelaksanaan tugas internal Inspektorat.' />
 
             <div className="px-4 md:px-6 lg:px-8 xl:px-12">
                 <Gallery />
