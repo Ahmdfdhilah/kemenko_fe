@@ -106,11 +106,11 @@ export function FileCard({
                     </div>
 
                     {/* Status Badge */}
-                    <div className="flex-shrink-0">
+                    {/* <div className="flex-shrink-0">
                         <div className="bg-chart-1/20 text-chart-1 rounded-full px-3 py-1.5 text-xs font-bold leading-none flex items-center">
                             {isAdmin ? 'Admin' : 'Aktif'}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Button Group dengan Dropdown */}
