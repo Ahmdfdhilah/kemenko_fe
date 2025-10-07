@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -27,7 +27,7 @@ import { LoginDto, loginSchema } from "./LoginDto";
 
 export const LoginPage: React.FC = () => {
   const { login, isLoading, clearError } = useAuth();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [showPassword, setShowPassword] = React.useState(false);
 
   const form = useForm<LoginDto>({
@@ -142,7 +142,7 @@ export const LoginPage: React.FC = () => {
               )}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
+            {/* <div className="text-center text-sm text-muted-foreground">
               Lupa kata sandi? klik{" "}
               <Button
                 type="button"
@@ -155,7 +155,7 @@ export const LoginPage: React.FC = () => {
               >
                 disini
               </Button>
-            </div>
+            </div> */}
           </CardFooter>
         </form>
       </Form>

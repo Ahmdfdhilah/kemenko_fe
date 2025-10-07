@@ -13,6 +13,19 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+// Define public endpoints that don't require authentication
+const PUBLIC_ENDPOINTS = [
+  '/auth/login',
+  '/auth/refresh',
+  '/auth/init-admin',
+  '/health',
+];
+
+// Helper function to check if endpoint is public
+const isPublicEndpoint = (url: string): boolean => {
+  return PUBLIC_ENDPOINTS.some(endpoint => url.includes(endpoint));
+};
+
 // Flag to prevent multiple refresh calls
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -72,9 +85,12 @@ const configureInterceptors = (api: AxiosInstance) => {
       const state = store.getState();
       const accessToken = selectAccessToken(state);
 
-      // Add bearer token to requests
-      if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+      // Skip adding token for public endpoints
+      if (!isPublicEndpoint(config.url || '')) {
+        // Add bearer token to protected requests
+        if (accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
       }
 
       if (config.data instanceof FormData) {
@@ -103,6 +119,11 @@ const configureInterceptors = (api: AxiosInstance) => {
     (response: AxiosResponse) => response,
     async (error) => {
       const originalRequest = error.config;
+
+      // Skip token refresh for public endpoints
+      if (isPublicEndpoint(originalRequest.url || '')) {
+        return Promise.reject(error);
+      }
 
       // Check if error is 401 and we haven't already tried to refresh
       if (error.response?.status === 401 && !originalRequest._retry) {
@@ -136,6 +157,7 @@ const configureInterceptors = (api: AxiosInstance) => {
         } catch (refreshError) {
           processQueue(refreshError, null);
 
+          // Redirect to login page if refresh fails
           window.location.href = '/login';
 
           return Promise.reject(refreshError);
