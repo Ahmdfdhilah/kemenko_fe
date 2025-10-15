@@ -1,7 +1,7 @@
 "use client"
 
-import { FileCard } from "@/components/common/FileCard"
-import { FolderModal } from "@/components/common/FolderModal"
+import { RootFolderCard } from "@/components/common/RootFolderCard"
+import { RootFolderModal } from "@/components/common/RootFolderModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
 import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
 import { Input } from "@workspace/ui/components/input"
@@ -62,6 +62,7 @@ export default function FoldersPage() {
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearchTerm || null,
+        parent_id: null,
         sort_by: sortBy,
         sort_type: sortType
     })
@@ -291,7 +292,7 @@ export default function FoldersPage() {
                         {/* Folders Grid */}
                         <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {folders.map((folder) => (
-                                <FileCard
+                                <RootFolderCard
                                     key={folder.id}
                                     folder={folder}
                                     isAdmin={user?.role === 'admin'}
@@ -372,7 +373,7 @@ export default function FoldersPage() {
             </div>
 
             {/* Folder Modal */}
-            <FolderModal
+            <RootFolderModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 onSave={handleSaveFolder}

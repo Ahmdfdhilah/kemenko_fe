@@ -12,21 +12,21 @@ export class AuthService extends BaseService {
         super('/auth');
     }
 
-    async login(data: LoginRequest): Promise<LoginResponse> {
+    async authLogin(data: LoginRequest): Promise<LoginResponse> {
         return this.post<LoginResponse>('/login', data);
     }
 
-    async logout(): Promise<{ message: string }> {
+    async authLogout(): Promise<{ message: string }> {
         return this.post<{ message: string }>('/logout');
     }
 
 
-    async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
+    async authRefreshToken(data: RefreshTokenRequest): Promise<RefreshTokenResponse> {
         return this.post<RefreshTokenResponse>('/refresh', data);
     }
 
 
-    async getProfile(): Promise<UserBase> {
+    async authGetProfile(): Promise<UserBase> {
         return this.get<UserBase>('/me');
     }
 

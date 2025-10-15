@@ -32,7 +32,7 @@ export const loginAsync = createAsyncThunk(
     'auth/login',
     async (credentials: LoginRequest, { rejectWithValue }) => {
         try {
-            const response = await authService.login(credentials);
+            const response = await authService.authLogin(credentials);
             return response;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Login failed');
@@ -44,7 +44,7 @@ export const logoutAsync = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
-            await authService.logout();
+            await authService.authLogout();
             return;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Logout failed');
@@ -56,7 +56,7 @@ export const refreshTokenAsync = createAsyncThunk(
     'auth/refreshToken',
     async (refreshTokenData: RefreshTokenRequest, { rejectWithValue }) => {
         try {
-            const response = await authService.refreshToken(refreshTokenData);
+            const response = await authService.authRefreshToken(refreshTokenData);
             return response;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Token refresh failed');
@@ -68,7 +68,7 @@ export const getProfileAsync = createAsyncThunk(
     'auth/getProfile',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await authService.getProfile();
+            const response = await authService.authGetProfile();
             return response;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Failed to get profile');

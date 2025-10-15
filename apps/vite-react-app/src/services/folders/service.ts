@@ -1,9 +1,10 @@
 // fe/apps/vite-react-app/src/services/folders/service.ts
 import { BaseService } from "../base";
 import {
-    FolderBase,
+    FolderWithChildren,
     FolderCreate,
     FolderUpdate,
+    FolderMove,
     FolderPaginatedParams,
     FolderResponsePaginated,
 } from "./types";
@@ -13,92 +14,69 @@ export class FolderService extends BaseService {
         super('/folders')
     }
 
-    async folderCreate(data: FolderCreate): Promise<{ message: string }> {
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('link', data.link);
-
-        if (data.description) {
-            formData.append('description', data.description);
-        }
-
-        if (data.image) {
-            formData.append('image', data.image);
-        }
-
-        return this.post<{ message: string }>('', formData);
-    }
-
-    async folderUpdate(data: FolderUpdate, id: string): Promise<{ message: string }> {
-        const formData = new FormData();
-
-        if (data.title !== undefined) {
-            formData.append('title', data.title);
-        }
-
-        if (data.description !== undefined) {
-            formData.append('description', data.description);
-        }
-
-        if (data.link !== undefined) {
-            formData.append('link', data.link);
-        }
-
-        if (data.remove_image !== undefined) {
-            formData.append('remove_image', data.remove_image.toString());
-        }
-
-        if (data.image) {
-            formData.append('image', data.image);
-        }
-
-        return this.put<{ message: string }>(`/${id}`, formData);
-    }
-
-    async folderDelete(id: string): Promise<{ message: string }> {
-        return this.delete<{ message: string }>(`/${id}`)
-    }
-
+    /**
+     * Get all folders with optional filtering
+     * Supports pagination, search, sorting, and parent_id filter
+     */
     async folderGetAll(params: FolderPaginatedParams): Promise<FolderResponsePaginated> {
-        return this.get<FolderResponsePaginated>(`${this.buildQuery(params)}`)
+        return this.get<FolderResponsePaginated>(`${this.buildQuery(params)}`);
     }
 
-
-    async folderGetById(id: string): Promise<FolderBase> {
-        return this.get<FolderBase>(`/${id}`)
+    /**
+     * Get root folders only (folders with no parent)
+     */
+    async folderGetRoot(params: Omit<FolderPaginatedParams, 'parent_id'>): Promise<FolderResponsePaginated> {
+        return this.get<FolderResponsePaginated>(`/root${this.buildQuery(params)}`);
     }
 
-    // Helper method to get folder image URL
-    getFolderImageUrl(imagePath: string, baseUrl?: string): string {
-        const base = baseUrl || window.location.origin;
-        return imagePath ? `${base}${imagePath}` : '';
+    /**
+     * Get folder by ID with children folders and files
+     */
+    async folderGetById(id: string): Promise<FolderWithChildren> {
+        return this.get<FolderWithChildren>(`/${id}`);
     }
 
-    // Helper method to format folder title for display
-    getShortTitle(title: string, maxLength: number = 50): string {
-        return title.length <= maxLength ? title : `${title.slice(0, maxLength)}...`;
+    /**
+     * Get child folders of a parent folder
+     */
+    async folderGetChildren(id: string, params: { page: number; limit: number }): Promise<FolderResponsePaginated> {
+        return this.get<FolderResponsePaginated>(`/${id}/children${this.buildQuery(params)}`);
     }
 
-    // Helper method to format folder description for display
-    getShortDescription(description: string, maxLength: number = 100): string {
-        return description.length <= maxLength ? description : `${description.slice(0, maxLength)}...`;
+    /**
+     * Create new folder (root or nested)
+     * If parent_id is null/undefined, creates a root folder
+     * Admin only
+     */
+    async folderCreate(data: FolderCreate): Promise<{ message: string }> {
+        return this.post<{ message: string }>('', data);
     }
 
-    // Helper method to validate image file
-    validateImageFile(file: File): { isValid: boolean; error?: string } {
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    /**
+     * Update folder
+     * Can also move folder by changing parent_id
+     * Admin only
+     */
+    async folderUpdate(data: FolderUpdate, id: string): Promise<{ message: string }> {
+        return this.put<{ message: string }>(`/${id}`, data);
+    }
 
-        if (file.size > maxSize) {
-            return { isValid: false, error: 'Image file size exceeds 5MB' };
-        }
+    /**
+     * Move folder to another parent
+     * Set new_parent_id to null to move to root
+     * Admin only
+     */
+    async folderMove(data: FolderMove, id: string): Promise<{ message: string }> {
+        return this.put<{ message: string }>(`/${id}/move`, data);
+    }
 
-        if (!allowedTypes.includes(file.type)) {
-            return { isValid: false, error: 'Invalid image file type. Allowed: JPEG, PNG, GIF, WebP' };
-        }
-
-        return { isValid: true };
+    /**
+     * Delete folder (cascade delete: deletes all children and files)
+     * Admin only
+     */
+    async folderDelete(id: string): Promise<{ message: string }> {
+        return this.delete<{ message: string }>(`/${id}`);
     }
 }
 
-export const folderService = new FolderService()
+export const folderService = new FolderService();
