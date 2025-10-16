@@ -35,6 +35,7 @@ export const useCreateFolder = () => {
                 description: response.message || 'Folder berhasil dibuat'
             })
             queryClient.invalidateQueries({ queryKey: ['folders'] })
+            queryClient.invalidateQueries({ queryKey: ['folder'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -75,6 +76,7 @@ export const useDeleteFolder = () => {
                 description: response.message || 'Folder berhasil dihapus'
             })
             queryClient.invalidateQueries({ queryKey: ['folders'] })
+            queryClient.invalidateQueries({ queryKey: ['folder'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
