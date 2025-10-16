@@ -13,7 +13,6 @@ import {
     Loader2,
     FolderPlus,
     Link as LinkIcon,
-    X,
     ChevronDown,
     ArrowUpDown,
     ChevronLeft,
@@ -21,7 +20,6 @@ import {
     ChevronsRight
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Input } from "@workspace/ui/components/input"
 import {
     DropdownMenu,
@@ -57,11 +55,6 @@ import { getPageNumbers } from "@/utils/pagination"
 type ViewMode = "list" | "grid"
 type ItemType = "folder" | "file"
 
-interface SelectedItem {
-    id: string
-    type: ItemType
-}
-
 export default function FolderDetailPage() {
     const { id } = useParams<{ id: string }>()
     const { user } = useAuth()
@@ -70,7 +63,6 @@ export default function FolderDetailPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
     const [viewMode, setViewMode] = useState<ViewMode>("list")
-    const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(12)
     const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'updated_at'>('name')
@@ -147,29 +139,6 @@ export default function FolderDetailPage() {
     const paginatedFiles = paginatedItems.filter(item => 'file_type' in item) as FileBase[]
 
     // Handlers
-    const toggleSelection = (id: string, type: ItemType) => {
-        setSelectedItems(prev => {
-            const exists = prev.find(item => item.id === id && item.type === type)
-            if (exists) {
-                return prev.filter(item => !(item.id === id && item.type === type))
-            }
-            return [...prev, { id, type }]
-        })
-    }
-
-    const toggleSelectAll = () => {
-        const allPageItems: SelectedItem[] = [
-            ...paginatedFolders.map(f => ({ id: f.id, type: 'folder' as ItemType })),
-            ...paginatedFiles.map(f => ({ id: f.id, type: 'file' as ItemType }))
-        ]
-
-        if (selectedItems.length === allPageItems.length && allPageItems.length > 0) {
-            setSelectedItems([])
-        } else {
-            setSelectedItems(allPageItems)
-        }
-    }
-
     const toggleSortType = () => {
         setSortType(prev => prev === 'asc' ? 'desc' : 'asc')
         setCurrentPage(1)
@@ -456,21 +425,6 @@ export default function FolderDetailPage() {
                 </div>
             </div>
 
-            {/* Bulk Actions Toolbar */}
-            {selectedItems.length > 0 && (
-                <div className="bg-muted/50 px-4 md:px-6 lg:px-8 xl:px-12 py-2 flex items-center justify-between border-b">
-                    <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedItems([])}>
-                            <X className="h-4 w-4 mr-2" />
-                            Batal
-                        </Button>
-                        <span className="text-sm text-muted-foreground">
-                            {selectedItems.length} item dipilih
-                        </span>
-                    </div>
-                </div>
-            )}
-
             {/* Content */}
             <div className="flex-1 px-4 md:px-6 lg:px-8 xl:px-12 py-6">
                 {isLoadingFiles && (
@@ -525,12 +479,6 @@ export default function FolderDetailPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="w-[40px]">
-                                                    <Checkbox
-                                                        checked={selectedItems.length === (paginatedFolders.length + paginatedFiles.length) && (paginatedFolders.length + paginatedFiles.length) > 0}
-                                                        onCheckedChange={toggleSelectAll}
-                                                    />
-                                                </TableHead>
                                                 <TableHead className="w-[300px]">Nama</TableHead>
                                                 <TableHead>Tipe</TableHead>
                                                 <TableHead>Ukuran</TableHead>
@@ -545,9 +493,7 @@ export default function FolderDetailPage() {
                                                     key={`folder-${subFolder.id}`}
                                                     folder={subFolder}
                                                     isAdmin={isAdmin}
-                                                    isSelected={selectedItems.some(item => item.id === subFolder.id && item.type === 'folder')}
                                                     viewMode="list"
-                                                    onSelect={() => toggleSelection(subFolder.id, 'folder')}
                                                     onEdit={handleEditFolder}
                                                     onDelete={handleDeleteFolder}
                                                 />
@@ -559,9 +505,7 @@ export default function FolderDetailPage() {
                                                     key={`file-${file.id}`}
                                                     file={file}
                                                     isAdmin={isAdmin}
-                                                    isSelected={selectedItems.some(item => item.id === file.id && item.type === 'file')}
                                                     viewMode="list"
-                                                    onSelect={() => toggleSelection(file.id, 'file')}
                                                     onEdit={handleEditFile}
                                                     onDelete={handleDeleteFile}
                                                     onOpen={handleOpenLink}
@@ -580,9 +524,7 @@ export default function FolderDetailPage() {
                                             key={`folder-${subFolder.id}`}
                                             folder={subFolder}
                                             isAdmin={isAdmin}
-                                            isSelected={selectedItems.some(item => item.id === subFolder.id && item.type === 'folder')}
                                             viewMode="grid"
-                                            onSelect={() => toggleSelection(subFolder.id, 'folder')}
                                             onEdit={handleEditFolder}
                                             onDelete={handleDeleteFolder}
                                         />
@@ -594,9 +536,7 @@ export default function FolderDetailPage() {
                                             key={`file-${file.id}`}
                                             file={file}
                                             isAdmin={isAdmin}
-                                            isSelected={selectedItems.some(item => item.id === file.id && item.type === 'file')}
                                             viewMode="grid"
-                                            onSelect={() => toggleSelection(file.id, 'file')}
                                             onEdit={handleEditFile}
                                             onDelete={handleDeleteFile}
                                             onOpen={handleOpenLink}

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { Folder, MoreVertical, Edit, Trash2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,9 +15,7 @@ import { formatDate } from "@/utils/date"
 interface SubFolderCardProps {
     folder: FolderBase
     isAdmin?: boolean
-    isSelected?: boolean
     viewMode: "list" | "grid"
-    onSelect?: () => void
     onEdit?: (folder: FolderBase) => void
     onDelete?: (folderId: string) => void
 }
@@ -26,21 +23,13 @@ interface SubFolderCardProps {
 export function SubFolderCard({
     folder,
     isAdmin = false,
-    isSelected = false,
     viewMode,
-    onSelect,
     onEdit,
     onDelete
 }: SubFolderCardProps) {
     if (viewMode === "list") {
         return (
             <TableRow>
-                <TableCell>
-                    <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={onSelect}
-                    />
-                </TableCell>
                 <TableCell>
                     <Link to={`/folders/${folder.id}`}>
                         <div className="flex items-center space-x-2 cursor-pointer">
@@ -84,13 +73,6 @@ export function SubFolderCard({
     // Grid view
     return (
         <div className="relative group rounded-lg border bg-card p-2 transition-all hover:shadow-md">
-            <div className="absolute top-2 right-2">
-                <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={onSelect}
-                />
-            </div>
-
             <Link to={`/folders/${folder.id}`}>
                 <div className="flex flex-col items-center p-4 cursor-pointer">
                     <Folder className="h-12 w-12 text-blue-500 mb-2" />

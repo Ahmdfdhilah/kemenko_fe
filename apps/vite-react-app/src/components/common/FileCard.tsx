@@ -1,6 +1,5 @@
 import { FileText, Link as LinkIcon, MoreVertical, Edit, Trash2, ExternalLink } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,9 +15,7 @@ import { formatDate } from "@/utils/date"
 interface FileCardProps {
     file: FileBase
     isAdmin?: boolean
-    isSelected?: boolean
     viewMode: "list" | "grid"
-    onSelect?: () => void
     onEdit?: (file: FileBase) => void
     onDelete?: (fileId: string) => void
     onOpen?: (file: FileBase) => void
@@ -48,9 +45,7 @@ const getFileIcon = (file: FileBase) => {
 export function FileCard({
     file,
     isAdmin = false,
-    isSelected = false,
     viewMode,
-    onSelect,
     onEdit,
     onDelete,
     onOpen
@@ -58,12 +53,6 @@ export function FileCard({
     if (viewMode === "list") {
         return (
             <TableRow>
-                <TableCell>
-                    <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={onSelect}
-                    />
-                </TableCell>
                 <TableCell>
                     <div className="flex items-center space-x-2 cursor-pointer" onClick={() => onOpen?.(file)}>
                         {getFileIcon(file)}
@@ -120,13 +109,6 @@ export function FileCard({
     // Grid view
     return (
         <div className="relative group rounded-lg border bg-card p-2 transition-all hover:shadow-md">
-            <div className="absolute top-2 right-2">
-                <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={onSelect}
-                />
-            </div>
-
             <div className="flex flex-col items-center p-4 cursor-pointer" onClick={() => onOpen?.(file)}>
                 <div className="mb-2">{getFileIcon(file)}</div>
                 <p className="font-medium truncate w-full text-center text-sm">{file.name}</p>
