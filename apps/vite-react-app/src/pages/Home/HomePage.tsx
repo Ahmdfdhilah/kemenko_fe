@@ -8,7 +8,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
 import { Search, Plus, FolderPlus, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { useFolders, useCreateFolder, useUpdateFolder, useDeleteFolder } from '@/hooks/useFolders'
+import { useCreateFolder, useUpdateFolder, useDeleteFolder, useRootFolders } from '@/hooks/useFolders'
 import { useAuth } from "@/hooks/useAuth"
 import HeroSection from "@/components/common/HeroSection"
 import Gallery from "@/components/common/Gallery"
@@ -27,7 +27,7 @@ export default function HomePage() {
         isLoading: isLoadingFolders,
         error: foldersError,
         refetch: refetchFolders
-    } = useFolders({
+    } = useRootFolders({
         page: 1,
         limit: 20,
         search: searchTerm || null,

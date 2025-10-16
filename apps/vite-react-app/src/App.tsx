@@ -16,6 +16,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './components/Auth/AuthProvider';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
 import FoldersPage from './pages/Folders/FoldersPage';
+import FolderDetailPage from './pages/Folders/FolderDetailPage';
 import UsersPage from './pages/admin/Users/UsersPage';
 
 function App() {
@@ -61,6 +62,14 @@ function App() {
                           element={
                             <ProtectedRoute requiredRoles={['admin', 'user']}>
                               <FoldersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/folders/:id"
+                          element={
+                            <ProtectedRoute requiredRoles={['admin', 'user']}>
+                              <FolderDetailPage />
                             </ProtectedRoute>
                           }
                         />

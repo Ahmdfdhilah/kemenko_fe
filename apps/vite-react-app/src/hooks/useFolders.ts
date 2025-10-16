@@ -10,6 +10,12 @@ export const useFolders = (params: FolderPaginatedParams) => {
         queryFn: () => folderService.folderGetAll(params),
     })
 }
+export const useRootFolders = (params: FolderPaginatedParams) => {
+    return useQuery({
+        queryKey: ['root-folders', params],
+        queryFn: () => folderService.folderGetRoot(params),
+    })
+}
 
 export const useFolder = (id: string, enabled = true) => {
     return useQuery({

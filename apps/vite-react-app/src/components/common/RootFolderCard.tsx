@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { FolderBase } from "@/services/folders/types"
-import { Link } from "react-router-dom"
 import { formatDate } from "@/utils/date"
+import { ScrollToTopLink } from "./ScrollToTopLink"
 
 interface RootFolderCardProps {
     folder: FolderBase;
@@ -74,7 +74,7 @@ export function RootFolderCard({
 
                 {/* Button Group dengan Dropdown */}
                 <ButtonGroup className="w-full">
-                    <Link to={`/folders/${folder.id}`} className="flex-1">
+                    <ScrollToTopLink to={`/folders/${folder.id}`} className="flex-1">
                         <Button
                             variant="outline"
                             className="w-full"
@@ -82,7 +82,7 @@ export function RootFolderCard({
                             <FolderOpen className="h-4 w-4 mr-2" />
                             Buka Folder
                         </Button>
-                    </Link>
+                    </ScrollToTopLink>
 
                     {isAdmin && (
                         <DropdownMenu>

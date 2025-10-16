@@ -17,7 +17,7 @@ import {
     ArrowUpDown
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useFolders, useCreateFolder, useUpdateFolder, useDeleteFolder } from '@/hooks/useFolders'
+import { useCreateFolder, useUpdateFolder, useDeleteFolder, useRootFolders } from '@/hooks/useFolders'
 import { useAuth } from "@/hooks/useAuth"
 import {
     Select,
@@ -58,7 +58,7 @@ export default function FoldersPage() {
         isLoading: isLoadingFolders,
         error: foldersError,
         refetch: refetchFolders
-    } = useFolders({
+    } = useRootFolders({
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearchTerm || null,
