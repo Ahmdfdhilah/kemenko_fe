@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import {
     ChevronRight,
@@ -8,38 +8,24 @@ import {
     Grid,
     List,
     Plus,
-    Search,
-    Upload,
     Loader2,
     FolderPlus,
     Link as LinkIcon,
-    ChevronDown,
-    ArrowUpDown,
-    ChevronLeft,
-    ChevronsLeft,
-    ChevronsRight
+    Upload,
+    ChevronDown
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@workspace/ui/components/select"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { Tabs, TabsContent } from "@workspace/ui/components/tabs"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent, EmptyMedia } from "@workspace/ui/components/empty"
 import { useAuth } from "@/hooks/useAuth"
 import { useFolder } from "@/hooks/useFolders"
-import { useFiles } from "@/hooks/useFiles"
 import { useCreateFolder, useUpdateFolder, useDeleteFolder } from "@/hooks/useFolders"
 import { useCreateFileLink, useUploadFile, useUpdateFileLink, useDeleteFile } from "@/hooks/useFiles"
 import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
@@ -50,7 +36,6 @@ import { FileUploadModal } from "@/components/common/FileUploadModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
 import { SubFolderCard } from "@/components/common/SubFolderCard"
 import { FileCard } from "@/components/common/FileCard"
-import { getPageNumbers } from "@/utils/pagination"
 
 type ViewMode = "list" | "grid"
 type ItemType = "folder" | "file"
@@ -60,13 +45,7 @@ export default function FolderDetailPage() {
     const { user } = useAuth()
     const isAdmin = user?.role === 'admin'
 
-    const [searchTerm, setSearchTerm] = useState("")
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
     const [viewMode, setViewMode] = useState<ViewMode>("list")
-    const [currentPage, setCurrentPage] = useState(1)
-    const [itemsPerPage, setItemsPerPage] = useState(12)
-    const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'updated_at'>('name')
-    const [sortType, setSortType] = useState<'asc' | 'desc'>('asc')
 
     // Modals state
     const [subFolderModalOpen, setSubFolderModalOpen] = useState(false)
@@ -79,25 +58,8 @@ export default function FolderDetailPage() {
     const [editingFile, setEditingFile] = useState<FileBase | null>(null)
     const [deletingItem, setDeletingItem] = useState<{ id: string; type: ItemType } | null>(null)
 
-    // Debounce search term
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm)
-            setCurrentPage(1)
-        }, 500)
-
-        return () => clearTimeout(timer)
-    }, [searchTerm])
-
     // Queries
     const { data: folder, isLoading: isLoadingFolder } = useFolder(id || '')
-    const { data: filesResponse, isLoading: isLoadingFiles } = useFiles(id || '', {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearchTerm || null,
-        sort_by: sortBy,
-        sort_type: sortType
-    })
 
     // Mutations
     const createFolderMutation = useCreateFolder()
@@ -108,7 +70,7 @@ export default function FolderDetailPage() {
     const updateFileLinkMutation = useUpdateFileLink()
     const deleteFileMutation = useDeleteFile()
 
-    const isLoading = isLoadingFolder || isLoadingFiles ||
+    const isLoading = isLoadingFolder ||
         createFolderMutation.isPending ||
         updateFolderMutation.isPending ||
         deleteFolderMutation.isPending ||
@@ -120,39 +82,10 @@ export default function FolderDetailPage() {
     // Parse path for breadcrumb
     const pathParts = folder?.path ? folder.path.split('/').filter(Boolean) : []
 
-    // Filter data
+    // Get data from folder
     const subFolders = folder?.children || []
-    const files = filesResponse?.items || []
-
-    const filteredSubFolders = subFolders.filter(f =>
-        debouncedSearchTerm === "" || f.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-    )
-
-    // Calculate combined items for pagination
-    const allItems = [...filteredSubFolders, ...files]
-    const totalItems = allItems.length
-    const totalPages = Math.ceil(totalItems / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    const paginatedItems = allItems.slice(startIndex, endIndex)
-    const paginatedFolders = paginatedItems.filter(item => 'children' in item) as FolderBase[]
-    const paginatedFiles = paginatedItems.filter(item => 'file_type' in item) as FileBase[]
-
-    // Handlers
-    const toggleSortType = () => {
-        setSortType(prev => prev === 'asc' ? 'desc' : 'asc')
-        setCurrentPage(1)
-    }
-
-    const handleSortByChange = (value: string) => {
-        setSortBy(value as 'name' | 'created_at' | 'updated_at')
-        setCurrentPage(1)
-    }
-
-    const handleItemsPerPageChange = (value: string) => {
-        setItemsPerPage(Number(value))
-        setCurrentPage(1)
-    }
+    const files = folder?.files || []
+    const totalItems = subFolders.length + files.length
 
     // Folder actions
     const handleCreateSubFolder = () => {
@@ -258,12 +191,10 @@ export default function FolderDetailPage() {
         }
     }
 
-    const handleOpenLink = (file: FileBase) => {
-        if (file.file_type === 'link' && file.external_link) {
-            window.open(file.external_link, '_blank')
-        } else if (file.file_type === 'upload' && file.file_url) {
-            window.open(file.file_url, '_blank')
-        }
+    const handleOpenFile = (file: { id: string; name: string; file_type: 'link' | 'upload' }) => {
+        // For simplified file info, we just open based on ID
+        // You might want to fetch full file details here if needed
+        console.log('Opening file:', file)
     }
 
     if (isLoadingFolder) {
@@ -328,66 +259,32 @@ export default function FolderDetailPage() {
                                 )}
                             </div>
 
-                            {isAdmin && (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button className="flex items-center gap-2 w-fit">
-                                            <Plus className="h-4 w-4" />
-                                            Baru
-                                            <ChevronDown className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={handleCreateSubFolder}>
-                                            <FolderPlus className="h-4 w-4 mr-2" />
-                                            Folder Baru
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={handleCreateLink}>
-                                            <LinkIcon className="h-4 w-4 mr-2" />
-                                            Tambah Link
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={handleUploadFile}>
-                                            <Upload className="h-4 w-4 mr-2" />
-                                            Upload File
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            )}
-                        </div>
-
-                        {/* Search and Filters */}
-                        <div className="flex flex-col lg:flex-row gap-4">
-                            <div className="relative flex-1 max-w-2xl">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                                <Input
-                                    type="search"
-                                    placeholder="Cari folder atau file..."
-                                    className="pl-10 border-border focus:border-primary focus:ring-primary"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="flex gap-2 flex-wrap">
-                                <Select value={sortBy} onValueChange={handleSortByChange}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Urutkan berdasarkan" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="name">Nama</SelectItem>
-                                        <SelectItem value="updated_at">Terakhir Diubah</SelectItem>
-                                        <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={toggleSortType}
-                                    title={sortType === 'asc' ? 'Urutkan Menurun' : 'Urutkan Menaik'}
-                                >
-                                    <ArrowUpDown className="h-4 w-4" />
-                                </Button>
+                            <div className="flex items-center gap-2">
+                                {isAdmin && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button className="flex items-center gap-2 w-fit">
+                                                <Plus className="h-4 w-4" />
+                                                Baru
+                                                <ChevronDown className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem onClick={handleCreateSubFolder}>
+                                                <FolderPlus className="h-4 w-4 mr-2" />
+                                                Folder Baru
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleCreateLink}>
+                                                <LinkIcon className="h-4 w-4 mr-2" />
+                                                Tambah Link
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleUploadFile}>
+                                                <Upload className="h-4 w-4 mr-2" />
+                                                Upload File
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
 
                                 <div className="hidden md:flex border rounded-md">
                                     <Button
@@ -407,18 +304,6 @@ export default function FolderDetailPage() {
                                         <Grid className="h-4 w-4" />
                                     </Button>
                                 </div>
-
-                                <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                                    <SelectTrigger className="w-[130px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="12">12 per halaman</SelectItem>
-                                        <SelectItem value="24">24 per halaman</SelectItem>
-                                        <SelectItem value="36">36 per halaman</SelectItem>
-                                        <SelectItem value="48">48 per halaman</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
                         </div>
                     </div>
@@ -427,16 +312,7 @@ export default function FolderDetailPage() {
 
             {/* Content */}
             <div className="flex-1 px-4 md:px-6 lg:px-8 xl:px-12 py-6">
-                {isLoadingFiles && (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="flex items-center gap-2">
-                            <Loader2 className="h-6 w-6 animate-spin" />
-                            <span>Memuat konten...</span>
-                        </div>
-                    </div>
-                )}
-
-                {!isLoadingFiles && totalItems === 0 && (
+                {totalItems === 0 ? (
                     <Empty>
                         <EmptyHeader>
                             <EmptyMedia variant="icon">
@@ -444,12 +320,10 @@ export default function FolderDetailPage() {
                             </EmptyMedia>
                             <EmptyTitle>Folder kosong</EmptyTitle>
                             <EmptyDescription>
-                                {debouncedSearchTerm
-                                    ? `Tidak ada hasil untuk "${debouncedSearchTerm}"`
-                                    : "Belum ada file atau folder di sini"}
+                                Belum ada file atau folder di sini
                             </EmptyDescription>
                         </EmptyHeader>
-                        {isAdmin && !debouncedSearchTerm && (
+                        {isAdmin && (
                             <EmptyContent>
                                 <div className="flex gap-2">
                                     <Button variant="outline" size="sm" onClick={handleCreateSubFolder}>
@@ -464,13 +338,11 @@ export default function FolderDetailPage() {
                             </EmptyContent>
                         )}
                     </Empty>
-                )}
-
-                {!isLoadingFiles && totalItems > 0 && (
+                ) : (
                     <>
                         {/* Results Info */}
                         <div className="mb-4 text-sm text-muted-foreground">
-                            Menampilkan {startIndex + 1} - {Math.min(endIndex, totalItems)} dari {totalItems} item
+                            {totalItems} item ({subFolders.length} folder, {files.length} file)
                         </div>
 
                         <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
@@ -479,16 +351,15 @@ export default function FolderDetailPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="w-[300px]">Nama</TableHead>
-                                                <TableHead>Tipe</TableHead>
-                                                <TableHead>Ukuran</TableHead>
-                                                <TableHead>Terakhir Diubah</TableHead>
+                                                <TableHead>Nama</TableHead>
+                                                <TableHead className="w-[100px]">Tipe</TableHead>
+                                                <TableHead className="w-[180px]">Terakhir Diupdate</TableHead>
                                                 <TableHead className="w-[80px]">Aksi</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {/* Sub Folders */}
-                                            {paginatedFolders.map((subFolder) => (
+                                            {subFolders.map((subFolder) => (
                                                 <SubFolderCard
                                                     key={`folder-${subFolder.id}`}
                                                     folder={subFolder}
@@ -499,16 +370,16 @@ export default function FolderDetailPage() {
                                                 />
                                             ))}
 
-                                            {/* Files */}
-                                            {paginatedFiles.map((file) => (
+                                            {/* Files - Simplified */}
+                                            {files.map((file) => (
                                                 <FileCard
                                                     key={`file-${file.id}`}
-                                                    file={file}
+                                                    file={file as any}
                                                     isAdmin={isAdmin}
                                                     viewMode="list"
                                                     onEdit={handleEditFile}
                                                     onDelete={handleDeleteFile}
-                                                    onOpen={handleOpenLink}
+                                                    onOpen={handleOpenFile}
                                                 />
                                             ))}
                                         </TableBody>
@@ -519,7 +390,7 @@ export default function FolderDetailPage() {
                             <TabsContent value="grid" className="m-0">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6">
                                     {/* Sub Folders */}
-                                    {paginatedFolders.map((subFolder) => (
+                                    {subFolders.map((subFolder) => (
                                         <SubFolderCard
                                             key={`folder-${subFolder.id}`}
                                             folder={subFolder}
@@ -530,88 +401,21 @@ export default function FolderDetailPage() {
                                         />
                                     ))}
 
-                                    {/* Files */}
-                                    {paginatedFiles.map((file) => (
+                                    {/* Files - Simplified */}
+                                    {files.map((file) => (
                                         <FileCard
                                             key={`file-${file.id}`}
-                                            file={file}
+                                            file={file as any}
                                             isAdmin={isAdmin}
                                             viewMode="grid"
                                             onEdit={handleEditFile}
                                             onDelete={handleDeleteFile}
-                                            onOpen={handleOpenLink}
+                                            onOpen={handleOpenFile}
                                         />
                                     ))}
                                 </div>
                             </TabsContent>
                         </Tabs>
-
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div className="text-sm text-muted-foreground">
-                                    Halaman {currentPage} dari {totalPages}
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setCurrentPage(1)}
-                                        disabled={currentPage === 1}
-                                    >
-                                        <ChevronsLeft className="h-4 w-4" />
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                        disabled={currentPage === 1}
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </Button>
-
-                                    <div className="flex gap-1">
-                                        {getPageNumbers(totalPages, currentPage).map((page, index) => (
-                                            page === '...' ? (
-                                                <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
-                                                    ...
-                                                </span>
-                                            ) : (
-                                                <Button
-                                                    key={page}
-                                                    variant={currentPage === page ? "default" : "outline"}
-                                                    size="sm"
-                                                    onClick={() => setCurrentPage(page as number)}
-                                                    className="min-w-[40px]"
-                                                >
-                                                    {page}
-                                                </Button>
-                                            )
-                                        ))}
-                                    </div>
-
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                        disabled={currentPage === totalPages}
-                                    >
-                                        <ChevronRight className="h-4 w-4" />
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setCurrentPage(totalPages)}
-                                        disabled={currentPage === totalPages}
-                                    >
-                                        <ChevronsRight className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
                     </>
                 )}
             </div>

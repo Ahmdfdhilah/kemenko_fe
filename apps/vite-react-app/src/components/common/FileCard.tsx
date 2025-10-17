@@ -1,16 +1,19 @@
-import { FileText, Link as LinkIcon, MoreVertical, Edit, Trash2, ExternalLink } from "lucide-react"
+import { FileText, Link as LinkIcon, MoreVertical, Edit, Trash2, ExternalLink, ChevronDown } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import { ButtonGroup } from "@workspace/ui/components/button-group"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuGroup,
 } from "@workspace/ui/components/dropdown-menu"
 import { TableCell, TableRow } from "@workspace/ui/components/table"
 import { FileBase } from "@/services/files/types"
 import { getFileTypeIcon, formatFileSize } from "@/utils/file"
 import { formatDate } from "@/utils/date"
+import { getItemTypeBadge, getItemTypeColor, type ItemType } from "@/utils/badge"
 
 interface FileCardProps {
     file: FileBase
@@ -60,12 +63,9 @@ export function FileCard({
                     </div>
                 </TableCell>
                 <TableCell>{file.file_type === 'link' ? 'Link' : 'File'}</TableCell>
-                <TableCell>
-                    {file.file_type === 'upload' && file.file_size
-                        ? formatFileSize(file.file_size)
-                        : '-'}
+                <TableCell className="text-muted-foreground text-sm">
+                    {file.updated_at ? formatDate(file.updated_at) : '-'}
                 </TableCell>
-                <TableCell>{formatDate(file.updated_at)}</TableCell>
                 <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -107,51 +107,84 @@ export function FileCard({
     }
 
     // Grid view
-    return (
-        <div className="relative group rounded-lg border bg-card p-2 transition-all hover:shadow-md">
-            <div className="flex flex-col items-center p-4 cursor-pointer" onClick={() => onOpen?.(file)}>
-                <div className="mb-2">{getFileIcon(file)}</div>
-                <p className="font-medium truncate w-full text-center text-sm">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
-                    {file.file_type === 'link' ? 'Link' : file.file_size ? formatFileSize(file.file_size) : 'File'}
-                </p>
-            </div>
+    const fileType: ItemType = file.file_type === 'link' ? 'link' : 'upload'
 
-            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onOpen?.(file)}>
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Buka
-                        </DropdownMenuItem>
-                        {isAdmin && file.file_type === 'link' && (
-                            <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onEdit?.(file)}>
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Edit
-                                </DropdownMenuItem>
-                            </>
-                        )}
-                        {isAdmin && (
-                            <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => onDelete?.(file.id)}
-                                    className="text-destructive"
-                                >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Hapus
-                                </DropdownMenuItem>
-                            </>
-                        )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+    return (
+        <div className="group relative overflow-hidden rounded-xl border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 hover:border-primary/50 min-h-[200px] flex flex-col">
+            {/* Decorative Background Pattern */}
+            <svg
+                className={`absolute bottom-0 left-0 mb-8 opacity-5 ${getItemTypeColor(fileType)}`}
+                viewBox="0 0 375 283"
+                fill="none"
+                style={{ transform: 'scale(1.2)' }}
+            >
+                <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="currentColor" />
+                <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="currentColor" />
+            </svg>
+
+            {/* Content Section */}
+            <div className="relative p-6 flex-1 flex flex-col">
+                <div className="mb-3">
+                    <p className={`text-xs uppercase tracking-wide font-medium opacity-60 ${getItemTypeColor(fileType)}`}>
+                        {file.updated_at ? `Diperbarui ${formatDate(file.updated_at)}` : 'Baru'}
+                    </p>
+                </div>
+
+                <div className="flex-1 mb-6">
+                    <h3 className="font-semibold text-lg text-foreground line-clamp-2 leading-tight mb-3">
+                        {file.name}
+                    </h3>
+                </div>
+
+                <div className="flex items-center gap-2 mb-4">
+                    {getItemTypeBadge(fileType)}
+                    {file.file_type === 'upload' && file.file_size && (
+                        <span className="text-xs px-2.5 py-1 bg-muted rounded-md text-muted-foreground font-medium">
+                            {formatFileSize(file.file_size)}
+                        </span>
+                    )}
+                </div>
+
+                {/* Button Group dengan Dropdown */}
+                <ButtonGroup className="w-full">
+                    <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => onOpen?.(file)}
+                    >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Buka
+                    </Button>
+
+                    {isAdmin && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="!pl-2">
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {file.file_type === 'link' && (
+                                    <>
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuItem onClick={() => onEdit?.(file)}>
+                                                <Edit className="h-4 w-4" />
+                                                Edit
+                                            </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem onClick={() => onDelete?.(file.id)}>
+                                        <Trash2 className="h-4 w-4" />
+                                        Hapus
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                </ButtonGroup>
             </div>
         </div>
     )

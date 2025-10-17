@@ -8,16 +8,20 @@ import {
 } from "@workspace/ui/components/dialog"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { useState, useEffect } from "react"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@workspace/ui/components/form"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect } from "react"
 import { FileBase, FileCreateLink, FileUpdateLink } from "@/services/files/types"
-
-interface FormErrors {
-    name?: string;
-    description?: string;
-    external_link?: string;
-}
+import { FileLinkDto, fileLinkSchema } from "@/pages/Folders/FileDto"
 
 interface FileLinkModalProps {
     isOpen: boolean;
@@ -36,70 +40,51 @@ export function FileLinkModal({
     mode,
     isLoading = false
 }: FileLinkModalProps) {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [externalLink, setExternalLink] = useState('');
-    const [errors, setErrors] = useState<FormErrors>({});
+    const form = useForm<FileLinkDto>({
+        resolver: zodResolver(fileLinkSchema),
+        defaultValues: {
+            name: '',
+            description: '',
+            external_link: '',
+        },
+    })
 
+    // Reset form when modal opens or file changes
     useEffect(() => {
         if (isOpen) {
             if (mode === 'edit' && file) {
-                setName(file.name);
-                setDescription(file.description || '');
-                setExternalLink(file.external_link || '');
+                form.reset({
+                    name: file.name,
+                    description: file.description || '',
+                    external_link: file.external_link || '',
+                })
             } else {
-                setName('');
-                setDescription('');
-                setExternalLink('');
+                form.reset({
+                    name: '',
+                    description: '',
+                    external_link: '',
+                })
             }
-            setErrors({});
         }
-    }, [isOpen, mode, file]);
+    }, [isOpen, mode, file, form])
 
-    const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
-
-        if (!name.trim()) {
-            newErrors.name = 'Nama link wajib diisi';
-        } else if (name.trim().length < 3) {
-            newErrors.name = 'Nama link minimal 3 karakter';
-        }
-
-        if (!externalLink.trim()) {
-            newErrors.external_link = 'URL link wajib diisi';
+    const onSubmit = (data: FileLinkDto) => {
+        if (mode === 'create') {
+            const createData: FileCreateLink = {
+                name: data.name,
+                description: data.description,
+                external_link: data.external_link,
+            }
+            onSave(createData)
         } else {
-            try {
-                new URL(externalLink.trim());
-            } catch {
-                newErrors.external_link = 'URL tidak valid';
+            const updateData: FileUpdateLink = {
+                name: data.name,
+                description: data.description,
+                external_link: data.external_link,
             }
+            onSave(updateData)
         }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (validateForm()) {
-            if (mode === 'create') {
-                const createData: FileCreateLink = {
-                    name: name.trim(),
-                    description: description.trim(),
-                    external_link: externalLink.trim(),
-                };
-                onSave(createData);
-            } else {
-                const updateData: FileUpdateLink = {
-                    name: name.trim(),
-                    description: description.trim(),
-                    external_link: externalLink.trim(),
-                };
-                onSave(updateData);
-            }
-        }
-    };
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -116,65 +101,68 @@ export function FileLinkModal({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto px-1">
-                    <form onSubmit={handleSubmit} className="space-y-4 pb-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Nama Link *</Label>
-                            <Input
-                                id="name"
-                                value={name}
-                                onChange={(e) => {
-                                    setName(e.target.value);
-                                    if (errors.name) {
-                                        setErrors(prev => ({ ...prev, name: undefined }));
-                                    }
-                                }}
-                                placeholder="Masukkan nama link"
-                                className={errors.name ? "border-destructive" : ""}
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-1">
+                        <div className="space-y-4 pb-4">
+                            {/* Name Field */}
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nama Link *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Masukkan nama link"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            {errors.name && (
-                                <p className="text-sm text-destructive">{errors.name}</p>
-                            )}
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="external_link">URL Link *</Label>
-                            <Input
-                                id="external_link"
-                                type="url"
-                                value={externalLink}
-                                onChange={(e) => {
-                                    setExternalLink(e.target.value);
-                                    if (errors.external_link) {
-                                        setErrors(prev => ({ ...prev, external_link: undefined }));
-                                    }
-                                }}
-                                placeholder="https://example.com/document"
-                                className={errors.external_link ? "border-destructive" : ""}
+                            {/* External Link Field */}
+                            <FormField
+                                control={form.control}
+                                name="external_link"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>URL Link *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="url"
+                                                placeholder="https://example.com/document"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            {errors.external_link && (
-                                <p className="text-sm text-destructive">{errors.external_link}</p>
-                            )}
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Deskripsi</Label>
-                            <Textarea
-                                id="description"
-                                value={description}
-                                onChange={(e) => {
-                                    setDescription(e.target.value);
-                                    if (errors.description) {
-                                        setErrors(prev => ({ ...prev, description: undefined }));
-                                    }
-                                }}
-                                placeholder="Masukkan deskripsi link (opsional)"
-                                rows={3}
-                                className="resize-none"
+                            {/* Description Field */}
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Deskripsi</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Masukkan deskripsi link (opsional)"
+                                                rows={3}
+                                                className="resize-none"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
                         </div>
                     </form>
-                </div>
+                </Form>
 
                 <DialogFooter className="flex-shrink-0 gap-2 sm:gap-0 pt-4 border-t">
                     <Button
@@ -187,7 +175,7 @@ export function FileLinkModal({
                     </Button>
                     <Button
                         type="submit"
-                        onClick={handleSubmit}
+                        onClick={form.handleSubmit(onSubmit)}
                         disabled={isLoading}
                     >
                         {isLoading ? (

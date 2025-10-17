@@ -17,6 +17,7 @@ export interface FolderWithChildren extends FolderBase {
         id: string;
         name: string;
         file_type: 'link' | 'upload';
+        updated_at?: string | null;
     }>;
 }
 

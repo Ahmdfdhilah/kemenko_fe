@@ -16,7 +16,6 @@ export const api = axios.create({
 // Define public endpoints that don't require authentication
 const PUBLIC_ENDPOINTS = [
   '/auth/login',
-  '/auth/refresh',
   '/auth/init-admin',
   '/health',
 ];
