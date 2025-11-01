@@ -89,7 +89,7 @@ export function FolderPermissionModal({
                         Kelola Hak Akses Folder
                     </DialogTitle>
                     <DialogDescription>
-                        Atur pengguna yang memiliki akses CRUD ke folder <strong>{folderTitle}</strong>
+                        Atur pengguna yang memiliki akses ke folder <strong>{folderTitle}</strong>
                     </DialogDescription>
                 </DialogHeader>
 
@@ -192,7 +192,7 @@ export function FolderPermissionModal({
 
                                                 {hasPermission && (
                                                     <div className="mt-1 text-xs text-primary font-medium">
-                                                        ✓ Memiliki akses CRUD
+                                                        Memiliki akses
                                                     </div>
                                                 )}
                                             </label>

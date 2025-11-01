@@ -92,7 +92,7 @@ export function RootFolderCard({
                         </Button>
                     </ScrollToTopLink>
 
-                    {isAdmin && (
+                    {(isAdmin || folder.can_crud) && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="!pl-2">
@@ -105,10 +105,14 @@ export function RootFolderCard({
                                         <Edit className="h-4 w-4" />
                                         Edit Folder
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleManagePermissions}>
-                                        <UserCheck className="h-4 w-4" />
-                                        Kelola Hak Akses
-                                    </DropdownMenuItem>
+
+                                    {/* Kelola Hak Akses hanya untuk Admin */}
+                                    {isAdmin && (
+                                        <DropdownMenuItem onClick={handleManagePermissions}>
+                                            <UserCheck className="h-4 w-4" />
+                                            Kelola Hak Akses
+                                        </DropdownMenuItem>
+                                    )}
                                 </DropdownMenuGroup>
 
                                 <DropdownMenuSeparator />

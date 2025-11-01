@@ -260,7 +260,7 @@ export default function FolderDetailPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                {isAdmin && (
+                                {(isAdmin || folder?.can_crud) && (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button className="flex items-center gap-2 w-fit">
@@ -323,7 +323,7 @@ export default function FolderDetailPage() {
                                 Belum ada file atau folder di sini
                             </EmptyDescription>
                         </EmptyHeader>
-                        {isAdmin && (
+                        {(isAdmin || folder?.can_crud) && (
                             <EmptyContent>
                                 <div className="flex gap-2">
                                     <Button variant="outline" size="sm" onClick={handleCreateSubFolder}>
@@ -376,6 +376,7 @@ export default function FolderDetailPage() {
                                                     key={`file-${file.id}`}
                                                     file={file as any}
                                                     isAdmin={isAdmin}
+                                                    canCRUD={folder?.can_crud || false}
                                                     viewMode="list"
                                                     onEdit={handleEditFile}
                                                     onDelete={handleDeleteFile}
@@ -407,6 +408,7 @@ export default function FolderDetailPage() {
                                             key={`file-${file.id}`}
                                             file={file as any}
                                             isAdmin={isAdmin}
+                                            canCRUD={folder?.can_crud || false}
                                             viewMode="grid"
                                             onEdit={handleEditFile}
                                             onDelete={handleDeleteFile}

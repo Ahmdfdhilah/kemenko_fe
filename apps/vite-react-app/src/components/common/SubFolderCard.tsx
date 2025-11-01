@@ -47,7 +47,7 @@ export function SubFolderCard({
                     {formatDate(folder.updated_at)}
                 </TableCell>
                 <TableCell>
-                    {isAdmin && (
+                    {(isAdmin || folder.can_crud) && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -119,7 +119,7 @@ export function SubFolderCard({
                         </Button>
                     </ScrollToTopLink>
 
-                    {isAdmin && (
+                    {(isAdmin || folder.can_crud) && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="!pl-2">

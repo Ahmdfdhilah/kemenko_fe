@@ -18,6 +18,7 @@ import { getItemTypeBadge, getItemTypeColor, type ItemType } from "@/utils/badge
 interface FileCardProps {
     file: FileBase
     isAdmin?: boolean
+    canCRUD?: boolean  // Permission dari parent folder
     viewMode: "list" | "grid"
     onEdit?: (file: FileBase) => void
     onDelete?: (fileId: string) => void
@@ -48,11 +49,14 @@ const getFileIcon = (file: FileBase) => {
 export function FileCard({
     file,
     isAdmin = false,
+    canCRUD = false,
     viewMode,
     onEdit,
     onDelete,
     onOpen
 }: FileCardProps) {
+    // User can edit/delete if they're admin OR have CRUD permission on parent folder
+    const hasEditPermission = isAdmin || canCRUD
     if (viewMode === "list") {
         return (
             <TableRow>
@@ -78,7 +82,7 @@ export function FileCard({
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Buka
                             </DropdownMenuItem>
-                            {isAdmin && file.file_type === 'link' && (
+                            {hasEditPermission && file.file_type === 'link' && (
                                 <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => onEdit?.(file)}>
@@ -87,7 +91,7 @@ export function FileCard({
                                     </DropdownMenuItem>
                                 </>
                             )}
-                            {isAdmin && (
+                            {hasEditPermission && (
                                 <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
@@ -156,7 +160,7 @@ export function FileCard({
                         Buka
                     </Button>
 
-                    {isAdmin && (
+                    {hasEditPermission && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" className="!pl-2">
