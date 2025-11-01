@@ -12,7 +12,8 @@ import {
     FolderPlus,
     Link as LinkIcon,
     Upload,
-    ChevronDown
+    ChevronDown,
+    Shield
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -34,6 +35,7 @@ import { SubFolderModal } from "@/components/common/SubFolderModal"
 import { FileLinkModal } from "@/components/common/FileLinkModal"
 import { FileUploadModal } from "@/components/common/FileUploadModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
+import { FolderPermissionModal } from "@/components/common/FolderPermissionModal"
 import { SubFolderCard } from "@/components/common/SubFolderCard"
 import { FileCard } from "@/components/common/FileCard"
 
@@ -52,6 +54,7 @@ export default function FolderDetailPage() {
     const [fileLinkModalOpen, setFileLinkModalOpen] = useState(false)
     const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [permissionModalOpen, setPermissionModalOpen] = useState(false)
 
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
@@ -260,6 +263,17 @@ export default function FolderDetailPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
+                                {isAdmin && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setPermissionModalOpen(true)}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Shield className="h-4 w-4" />
+                                        Kelola Hak Akses
+                                    </Button>
+                                )}
+
                                 {(isAdmin || folder?.can_crud) && (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -468,6 +482,13 @@ export default function FolderDetailPage() {
                 cancelText="Batal"
                 isLoading={isLoading}
                 variant="destructive"
+            />
+
+            <FolderPermissionModal
+                isOpen={permissionModalOpen}
+                onClose={() => setPermissionModalOpen(false)}
+                folderId={id || ''}
+                folderTitle={folder?.title || ''}
             />
         </div>
     )
