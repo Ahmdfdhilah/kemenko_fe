@@ -21,10 +21,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/tailwind/*": ["../../packages/tailwind/*"]
     },

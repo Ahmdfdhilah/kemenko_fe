@@ -8,3 +8,6 @@ export * from './folders';
 
 // Export files service
 export * from './files';
+
+// Export permissions service
+export * from './permissions';

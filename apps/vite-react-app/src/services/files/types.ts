@@ -1,5 +1,6 @@
 // fe/apps/vite-react-app/src/services/files/types.ts
 import { Base, PaginatedResponse, Sort } from "@/services/base";
+import { UserSummary, FolderSummary } from "@/services/permissions/types";
 
 // FILE TYPE
 export type FileType = 'link' | 'upload';
@@ -16,9 +17,15 @@ export interface FileBase extends Base {
 
     // For upload type
     file_path?: string;
-    file_url?: string;
+    file_url: string;  // Resolved URL (external link or uploaded file URL)
     file_size?: number;
+    file_size_display?: string;  // Human-readable size (e.g., "1.5 MB")
     mime_type?: string;
+
+    // Relations
+    created_by?: UserSummary;
+    updated_by?: UserSummary;
+    folder?: FolderSummary;
 }
 
 // RESPONSE

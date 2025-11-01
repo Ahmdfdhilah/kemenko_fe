@@ -46,25 +46,65 @@ export class FolderService extends BaseService {
     /**
      * Create new folder (root or nested)
      * If parent_id is null/undefined, creates a root folder
-     * Admin only
+     * Admin or user with permissions
      */
     async folderCreate(data: FolderCreate): Promise<{ message: string }> {
+        // If image is provided, use FormData
+        if (data.image) {
+            const formData = new FormData();
+            formData.append('title', data.title);
+            if (data.description) {
+                formData.append('description', data.description);
+            }
+            if (data.parent_id) {
+                formData.append('parent_id', data.parent_id);
+            }
+            formData.append('image', data.image);
+
+            return this.post<{ message: string }>('', formData);
+        }
+
+        // Otherwise use JSON
         return this.post<{ message: string }>('', data);
     }
 
     /**
      * Update folder
      * Can also move folder by changing parent_id
-     * Admin only
+     * Admin or user with permissions
      */
-    async folderUpdate(data: FolderUpdate, id: string): Promise<{ message: string }> {
+    async folderUpdate(data: FolderUpdate & { delete_image?: boolean }, id: string): Promise<{ message: string }> {
+        // If image is provided or delete_image flag is set, use FormData
+        if (data.image || data.delete_image) {
+            const formData = new FormData();
+
+            if (data.title !== undefined) {
+                formData.append('title', data.title);
+            }
+            if (data.description !== undefined) {
+                formData.append('description', data.description);
+            }
+            if (data.parent_id !== undefined) {
+                formData.append('parent_id', data.parent_id || '');
+            }
+            if (data.image) {
+                formData.append('image', data.image);
+            }
+            if (data.delete_image) {
+                formData.append('delete_image', 'true');
+            }
+
+            return this.put<{ message: string }>(`/${id}`, formData);
+        }
+
+        // Otherwise use JSON
         return this.put<{ message: string }>(`/${id}`, data);
     }
 
     /**
      * Move folder to another parent
      * Set new_parent_id to null to move to root
-     * Admin only
+     * Admin or user with permissions
      */
     async folderMove(data: FolderMove, id: string): Promise<{ message: string }> {
         return this.put<{ message: string }>(`/${id}/move`, data);
@@ -72,7 +112,7 @@ export class FolderService extends BaseService {
 
     /**
      * Delete folder (cascade delete: deletes all children and files)
-     * Admin only
+     * Admin or user with permissions
      */
     async folderDelete(id: string): Promise<{ message: string }> {
         return this.delete<{ message: string }>(`/${id}`);

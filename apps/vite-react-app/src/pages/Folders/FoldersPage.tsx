@@ -3,6 +3,7 @@
 import { RootFolderCard } from "@/components/common/RootFolderCard"
 import { RootFolderModal } from "@/components/common/RootFolderModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
+import { FolderPermissionModal } from "@/components/common/FolderPermissionModal"
 import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
 import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
@@ -42,6 +43,11 @@ export default function FoldersPage() {
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
+
+    // Permission modal state
+    const [permissionModalOpen, setPermissionModalOpen] = useState(false)
+    const [permissionFolderId, setPermissionFolderId] = useState<string | null>(null)
+    const [permissionFolderTitle, setPermissionFolderTitle] = useState<string>("")
 
     // Debounce search term
     useEffect(() => {
@@ -109,6 +115,21 @@ export default function FoldersPage() {
     const handleDeleteCancel = () => {
         setDeleteDialogOpen(false)
         setDeletingFolderId(null)
+    }
+
+    const handleManagePermissions = (id: string) => {
+        const folder = foldersResponse?.items.find(folder => folder.id === id)
+        if (folder) {
+            setPermissionFolderId(id)
+            setPermissionFolderTitle(folder.title)
+            setPermissionModalOpen(true)
+        }
+    }
+
+    const handlePermissionModalClose = () => {
+        setPermissionModalOpen(false)
+        setPermissionFolderId(null)
+        setPermissionFolderTitle("")
     }
 
     const handleSaveFolder = async (data: FolderCreate | FolderUpdate) => {
@@ -298,6 +319,7 @@ export default function FoldersPage() {
                                     isAdmin={user?.role === 'admin'}
                                     onUpdate={handleEditFolder}
                                     onDelete={handleDeleteClick}
+                                    onManagePermissions={handleManagePermissions}
                                 />
                             ))}
                         </div>
@@ -394,6 +416,16 @@ export default function FoldersPage() {
                 isLoading={deleteFolderMutation.isPending}
                 variant="destructive"
             />
+
+            {/* Folder Permission Modal */}
+            {permissionFolderId && (
+                <FolderPermissionModal
+                    isOpen={permissionModalOpen}
+                    onClose={handlePermissionModalClose}
+                    folderId={permissionFolderId}
+                    folderTitle={permissionFolderTitle}
+                />
+            )}
         </div>
     )
 }

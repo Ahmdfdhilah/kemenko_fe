@@ -1,6 +1,6 @@
 import { Button } from "@workspace/ui/components/button"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
-import { FolderOpen, ChevronDown, Trash2, Edit } from "lucide-react"
+import { FolderOpen, ChevronDown, Trash2, Edit, UserCheck } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +18,15 @@ interface RootFolderCardProps {
     isAdmin?: boolean;
     onUpdate?: (id: string) => void;
     onDelete?: (id: string) => void;
+    onManagePermissions?: (id: string) => void;
 }
 
 export function RootFolderCard({
     folder,
     isAdmin = false,
     onUpdate,
-    onDelete
+    onDelete,
+    onManagePermissions
 }: RootFolderCardProps) {
     const handleUpdate = () => {
         if (onUpdate) {
@@ -35,6 +37,12 @@ export function RootFolderCard({
     const handleDelete = () => {
         if (onDelete) {
             onDelete(folder.id);
+        }
+    }
+
+    const handleManagePermissions = () => {
+        if (onManagePermissions) {
+            onManagePermissions(folder.id);
         }
     }
 
@@ -96,6 +104,10 @@ export function RootFolderCard({
                                     <DropdownMenuItem onClick={handleUpdate}>
                                         <Edit className="h-4 w-4" />
                                         Edit Folder
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleManagePermissions}>
+                                        <UserCheck className="h-4 w-4" />
+                                        Kelola Hak Akses
                                     </DropdownMenuItem>
                                 </DropdownMenuGroup>
 

@@ -1,13 +1,20 @@
 // fe/apps/vite-react-app/src/services/folders/types.ts
 import { Base, PaginatedResponse, Sort } from "@/services/base";
+import { UserSummary } from "@/services/permissions/types";
 
 // BASE FOLDER
 export interface FolderBase extends Base {
     title: string;
     description: string;
-    parent_id: string | null;
-    depth: number;
-    path: string;
+    image_path?: string | null;
+    image_url?: string | null;
+    parent_id?: string | null;
+    is_root: boolean;
+    has_children: boolean;
+    files_count: number;
+    created_by?: UserSummary;
+    updated_by?: UserSummary;
+    can_crud: boolean;  // Permission indicator - true if user can CRUD this folder
 }
 
 // FOLDER WITH CHILDREN (for hierarchy display)
@@ -29,12 +36,14 @@ export interface FolderCreate {
     title: string;
     description?: string;
     parent_id?: string | null;  // null or undefined = root folder
+    image?: File;  // Optional image upload
 }
 
 export interface FolderUpdate {
     title?: string;
     description?: string;
     parent_id?: string | null;  // can move folder by changing parent
+    image?: File;  // Optional: replace or add image
 }
 
 export interface FolderMove {
