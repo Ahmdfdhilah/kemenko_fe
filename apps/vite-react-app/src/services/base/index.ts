@@ -2,5 +2,6 @@ export { BaseService } from "./service";
 export type {
   Base,
   PaginatedResponse,
-  Sort
+  Sort,
+  UserSummary
 } from "./types";

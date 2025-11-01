@@ -19,6 +19,7 @@ export interface FolderBase extends Base {
 
 // FOLDER WITH CHILDREN (for hierarchy display)
 export interface FolderWithChildren extends FolderBase {
+    path?: string;
     children?: FolderBase[];
     files?: Array<{
         id: string;

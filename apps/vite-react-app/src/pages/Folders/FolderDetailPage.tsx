@@ -236,7 +236,7 @@ export default function FolderDetailPage() {
                             <Link to="/folders" className="hover:text-primary">
                                 Folders
                             </Link>
-                            {pathParts.map((part, index) => (
+                            {pathParts.map((part: string, index: number) => (
                                 <div key={index} className="flex items-center">
                                     <ChevronRight className="h-4 w-4 mx-1" />
                                     <span>{part}</span>
