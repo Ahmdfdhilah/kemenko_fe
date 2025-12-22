@@ -47,58 +47,54 @@ export class FolderService extends BaseService {
      * Create new folder (root or nested)
      * If parent_id is null/undefined, creates a root folder
      * Admin or user with permissions
+     * 
+     * NOTE: Backend expects multipart/form-data, not JSON
      */
     async folderCreate(data: FolderCreate): Promise<{ message: string }> {
-        // If image is provided, use FormData
+        // Always use FormData since backend expects multipart/form-data
+        const formData = new FormData();
+        formData.append('title', data.title);
+        if (data.description) {
+            formData.append('description', data.description);
+        }
+        if (data.parent_id) {
+            formData.append('parent_id', data.parent_id);
+        }
         if (data.image) {
-            const formData = new FormData();
-            formData.append('title', data.title);
-            if (data.description) {
-                formData.append('description', data.description);
-            }
-            if (data.parent_id) {
-                formData.append('parent_id', data.parent_id);
-            }
             formData.append('image', data.image);
-
-            return this.post<{ message: string }>('', formData);
         }
 
-        // Otherwise use JSON
-        return this.post<{ message: string }>('', data);
+        return this.post<{ message: string }>('', formData);
     }
 
     /**
      * Update folder
      * Can also move folder by changing parent_id
      * Admin or user with permissions
+     * 
+     * NOTE: Backend expects multipart/form-data, not JSON
      */
     async folderUpdate(data: FolderUpdate & { delete_image?: boolean }, id: string): Promise<{ message: string }> {
-        // If image is provided or delete_image flag is set, use FormData
-        if (data.image || data.delete_image) {
-            const formData = new FormData();
+        // Always use FormData since backend expects multipart/form-data
+        const formData = new FormData();
 
-            if (data.title !== undefined) {
-                formData.append('title', data.title);
-            }
-            if (data.description !== undefined) {
-                formData.append('description', data.description);
-            }
-            if (data.parent_id !== undefined) {
-                formData.append('parent_id', data.parent_id || '');
-            }
-            if (data.image) {
-                formData.append('image', data.image);
-            }
-            if (data.delete_image) {
-                formData.append('delete_image', 'true');
-            }
-
-            return this.put<{ message: string }>(`/${id}`, formData);
+        if (data.title !== undefined) {
+            formData.append('title', data.title);
+        }
+        if (data.description !== undefined) {
+            formData.append('description', data.description);
+        }
+        if (data.parent_id !== undefined) {
+            formData.append('parent_id', data.parent_id || '');
+        }
+        if (data.image) {
+            formData.append('image', data.image);
+        }
+        if (data.delete_image) {
+            formData.append('delete_image', 'true');
         }
 
-        // Otherwise use JSON
-        return this.put<{ message: string }>(`/${id}`, data);
+        return this.put<{ message: string }>(`/${id}`, formData);
     }
 
     /**
