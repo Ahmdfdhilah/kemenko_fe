@@ -61,10 +61,9 @@ const refreshTokens = async (): Promise<string | null> => {
 
     const { access_token, refresh_token, token_type, expires_in } = response.data;
 
-    // Update tokens in Redux store
     store.dispatch(setTokens({
       accessToken: access_token,
-      refreshToken: refresh_token,
+      ...(refresh_token && { refreshToken: refresh_token }),
       tokenType: token_type || 'Bearer',
       expiresIn: expires_in,
     }));
@@ -95,7 +94,7 @@ const configureInterceptors = (api: AxiosInstance) => {
       if (config.data instanceof FormData) {
         // Delete Content-Type to let browser set it with boundary
         delete config.headers['Content-Type'];
-        
+
         for (const [key, value] of config.data.entries()) {
           if (value instanceof File) {
             console.log(`  ${key}:`, value.name, `(${value.size} bytes, ${value.type})`);
