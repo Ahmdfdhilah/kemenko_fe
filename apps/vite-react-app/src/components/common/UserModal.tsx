@@ -123,7 +123,7 @@ export function UserModal({
                 const updateData: UserUpdate = {
                     name: name.trim(),
                     email: email.trim().toLowerCase(),
-                    password: password? password : null,
+                    password: password ? password : null,
                     role,
                 };
                 onSave(updateData);
@@ -136,12 +136,12 @@ export function UserModal({
             <DialogContent className="sm:max-w-[450px] max-h-[90vh] flex flex-col">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle>
-                        {mode === 'create' ? 'Tambah User Baru' : 'Edit User'}
+                        {mode === 'create' ? 'Tambah Pengguna Baru' : 'Edit Pengguna'}
                     </DialogTitle>
                     <DialogDescription>
                         {mode === 'create'
-                            ? 'Tambahkan user baru ke sistem.'
-                            : 'Perbarui informasi user. Kosongkan password jika tidak ingin mengubahnya.'
+                            ? 'Tambahkan pengguna baru ke sistem.'
+                            : 'Perbarui informasi pengguna. Kosongkan password jika tidak ingin mengubahnya.'
                         }
                     </DialogDescription>
                 </DialogHeader>
@@ -233,7 +233,7 @@ export function UserModal({
                                     id="role"
                                     className={errors.role ? "border-destructive" : ""}
                                 >
-                                    <SelectValue placeholder="Pilih role user" />
+                                    <SelectValue placeholder="Pilih peran pengguna" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="user">User</SelectItem>
@@ -244,7 +244,7 @@ export function UserModal({
                                 <p className="text-sm text-destructive">{errors.role}</p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                                Admin memiliki akses penuh ke sistem, termasuk manajemen user dan folder
+                                Admin memiliki akses penuh ke sistem, termasuk manajemen pengguna dan folder
                             </p>
                         </div>
                     </form>
@@ -268,7 +268,7 @@ export function UserModal({
                         {isLoading ? (
                             <>Memproses...</>
                         ) : (
-                            mode === 'create' ? 'Tambah User' : 'Perbarui User'
+                            mode === 'create' ? 'Tambah Pengguna' : 'Perbarui Pengguna'
                         )}
                     </Button>
                 </DialogFooter>

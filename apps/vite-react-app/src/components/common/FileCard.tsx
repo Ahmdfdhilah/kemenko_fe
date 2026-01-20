@@ -66,7 +66,7 @@ export function FileCard({
                         <span className="font-medium hover:text-primary">{file.name}</span>
                     </div>
                 </TableCell>
-                <TableCell>{file.file_type === 'link' ? 'Link' : 'File'}</TableCell>
+                <TableCell>{file.file_type === 'link' ? 'Tautan' : 'Berkas'}</TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                     {file.updated_at ? formatDate(file.updated_at) : '-'}
                 </TableCell>
@@ -87,7 +87,7 @@ export function FileCard({
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => onEdit?.(file)}>
                                         <Edit className="h-4 w-4 mr-2" />
-                                        Edit
+                                        Ubah
                                     </DropdownMenuItem>
                                 </>
                             )}
@@ -173,7 +173,7 @@ export function FileCard({
                                         <DropdownMenuGroup>
                                             <DropdownMenuItem onClick={() => onEdit?.(file)}>
                                                 <Edit className="h-4 w-4" />
-                                                Edit
+                                                Ubah
                                             </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                         <DropdownMenuSeparator />

@@ -197,7 +197,7 @@ export default function UsersPage() {
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                             <div>
                                 <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground">
-                                    Manajemen <span className="text-tertiary">User</span>
+                                    Manajemen <span className="text-tertiary">Pengguna</span>
                                 </h1>
                                 <p className="text-muted-foreground mt-2">
                                     Kelola semua pengguna aplikasi
@@ -211,7 +211,7 @@ export default function UsersPage() {
                                     disabled={isLoading}
                                 >
                                     <UserPlus className="h-4 w-4" />
-                                    Tambah User Baru
+                                    Tambah Pengguna Baru
                                 </Button>
                             )}
                         </div>
@@ -222,7 +222,7 @@ export default function UsersPage() {
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
                                 <Input
                                     type="search"
-                                    placeholder="Cari user berdasarkan nama atau email..."
+                                    placeholder="Cari pengguna berdasarkan nama atau email..."
                                     className="pl-10 border-border focus:border-primary focus:ring-primary"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -285,14 +285,14 @@ export default function UsersPage() {
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2">
                             <Loader2 className="h-6 w-6 animate-spin" />
-                            <span>Memuat user...</span>
+                            <span>Memuat pengguna...</span>
                         </div>
                     </div>
                 )}
 
                 {usersError && (
                     <div className="text-center py-12">
-                        <div className="text-red-600 text-lg mb-2">Gagal memuat user</div>
+                        <div className="text-red-600 text-lg mb-2">Gagal memuat pengguna</div>
                         <div className="text-muted-foreground/70 text-sm mb-4">
                             {usersError.message}
                         </div>
@@ -304,7 +304,7 @@ export default function UsersPage() {
 
                 {!isLoadingUsers && !usersError && users.length === 0 && (
                     <div className="text-center py-12">
-                        <div className="text-muted-foreground text-lg mb-2">User tidak ditemukan</div>
+                        <div className="text-muted-foreground text-lg mb-2">Pengguna tidak ditemukan</div>
                         <div className="text-muted-foreground/70 text-sm mb-4">
                             {debouncedSearchTerm
                                 ? "Coba sesuaikan kata kunci pencarian Anda"
@@ -314,7 +314,7 @@ export default function UsersPage() {
                         {user?.role === 'admin' && !debouncedSearchTerm && (
                             <Button onClick={handleCreateUser} variant="outline">
                                 <UserPlus className="h-4 w-4 mr-2" />
-                                Tambah User Pertama
+                                Tambah Pengguna Pertama
                             </Button>
                         )}
                     </div>
@@ -324,7 +324,7 @@ export default function UsersPage() {
                     <>
                         {/* Results Info */}
                         <div className="mb-4 text-sm text-muted-foreground">
-                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, meta?.total_pages || 0)} dari {meta?.total_pages || 0} user
+                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, meta?.total_pages || 0)} dari {meta?.total_pages || 0} pengguna
                         </div>
 
                         {/* Desktop Table View */}
@@ -538,8 +538,8 @@ export default function UsersPage() {
                 isOpen={deleteDialogOpen}
                 onClose={handleDeleteCancel}
                 onConfirm={handleDeleteConfirm}
-                title="Hapus User"
-                description="Apakah Anda yakin ingin menghapus user ini? Tindakan ini tidak dapat dibatalkan."
+                title="Hapus Pengguna"
+                description="Apakah Anda yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan."
                 confirmText="Hapus"
                 cancelText="Batal"
                 isLoading={deleteUserMutation.isPending}

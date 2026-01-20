@@ -17,7 +17,7 @@ export abstract class BaseService {
       return response.data;
     } catch (error: any) {
 
-      let errorMessage = "Unknown Error";
+      let errorMessage = "Terjadi kesalahan yang tidak diketahui";
 
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -25,7 +25,7 @@ export abstract class BaseService {
         errorMessage = error.message;
       }
 
-      toast.error('Error', {
+      toast.error('Gagal', {
         description: errorMessage
       })
 
