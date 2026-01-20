@@ -28,7 +28,7 @@ export function FolderPermissionModal({
     const [searchTerm, setSearchTerm] = useState("")
     const debouncedSearch = useDebounce(searchTerm, 500)
 
-    // Fetch users with search
+    // Fetch users with search - only when modal is open
     const { data: usersResponse, isLoading: isLoadingUsers } = useUsers({
         page: 1,
         limit: 50,
@@ -36,7 +36,7 @@ export function FolderPermissionModal({
         role: 'user', // Only show regular users (not admins)
         sort_by: 'name',
         sort_type: 'asc'
-    })
+    }, isOpen)
 
     // Fetch current folder permissions
     const {

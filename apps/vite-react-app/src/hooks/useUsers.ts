@@ -4,10 +4,11 @@ import { UserCreate, UserUpdate, UserPaginatedParams } from '@/services/users/ty
 import { toast } from "@workspace/ui/components/sonner"
 import { userService } from '@/services/users/service'
 
-export const useUsers = (params: UserPaginatedParams) => {
+export const useUsers = (params: UserPaginatedParams, enabled = true) => {
     return useQuery({
         queryKey: ['users', params],
         queryFn: () => userService.userGetAll(params),
+        enabled,
     })
 }
 
