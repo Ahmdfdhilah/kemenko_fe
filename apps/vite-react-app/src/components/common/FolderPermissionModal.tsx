@@ -117,9 +117,9 @@ export function FolderPermissionModal({
                         ) : (
                             <div>
                                 {permittedUserIds.size === 0 ? (
-                                    "Belum ada pengguna dengan hak akses CRUD"
+                                    "Belum ada pengguna dengan hak akses edit"
                                 ) : (
-                                    `${permittedUserIds.size} pengguna memiliki hak akses CRUD`
+                                    `${permittedUserIds.size} pengguna memiliki hak akses edit`
                                 )}
                             </div>
                         )}
