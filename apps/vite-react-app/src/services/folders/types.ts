@@ -2,6 +2,12 @@
 import { Base, PaginatedResponse, Sort } from "@/services/base";
 import { UserSummary } from "@/services/permissions/types";
 
+// FOLDER SUMMARY (for relations)
+export interface FolderSummary {
+    id: string;
+    title: string;
+}
+
 // BASE FOLDER
 export interface FolderBase extends Base {
     title: string;

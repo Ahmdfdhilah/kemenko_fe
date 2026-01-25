@@ -1,6 +1,7 @@
 import { UserRole } from "@/services/users";
 import {
     Activity,
+    CalendarDays,
     FolderCheck,
     Home,
     Settings,
@@ -30,6 +31,12 @@ export const appMenuItems: SidebarItem[] = [
         title: 'Folders',
         href: '/folders',
         icon: FolderCheck,
+        allowedRoles: ['admin', 'user'],
+    },
+    {
+        title: 'Agenda',
+        href: '/calendar',
+        icon: CalendarDays,
         allowedRoles: ['admin', 'user'],
     },
     {

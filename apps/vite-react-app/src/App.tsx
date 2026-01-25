@@ -19,6 +19,7 @@ import FoldersPage from './pages/Folders/FoldersPage';
 import FolderDetailPage from './pages/Folders/FolderDetailPage';
 import UsersPage from './pages/admin/Users/UsersPage';
 import ActivityPage from './pages/Activity/ActivityPage';
+import CalendarPage from './pages/Calendar';
 
 function App() {
   return (
@@ -71,6 +72,14 @@ function App() {
                           element={
                             <ProtectedRoute requiredRoles={['admin', 'user']}>
                               <FolderDetailPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/calendar"
+                          element={
+                            <ProtectedRoute requiredRoles={['admin', 'user']}>
+                              <CalendarPage />
                             </ProtectedRoute>
                           }
                         />

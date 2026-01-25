@@ -233,7 +233,7 @@ export default function FolderDetailPage() {
         <div className="flex flex-col min-h-screen">
             {/* Header */}
             <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+                <div className="py-6">
                     <div className="flex flex-col gap-4">
                         {/* Breadcrumb */}
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground flex-wrap">
@@ -330,7 +330,7 @@ export default function FolderDetailPage() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+            <div className="flex-1 py-6">
                 {totalItems === 0 ? (
                     <Empty>
                         <EmptyHeader>

@@ -1,11 +1,7 @@
 // fe/apps/vite-react-app/src/services/permissions/types.ts
 import { UserSummary } from "@/services/base";
+import { FolderSummary } from "@/services/folders/types";
 
-// FOLDER SUMMARY (for relations)
-export interface FolderSummary {
-    id: string;
-    title: string;
-}
 
 // Re-export UserSummary for convenience
 export type { UserSummary };

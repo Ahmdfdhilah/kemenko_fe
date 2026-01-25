@@ -187,7 +187,7 @@ export default function FoldersPage() {
         <div className="flex flex-col min-h-screen">
             {/* Header */}
             <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+                <div className="py-6">
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                             <div>
@@ -263,7 +263,7 @@ export default function FoldersPage() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+            <div className="flex-1 py-6">
                 {isLoadingFolders && (
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2">

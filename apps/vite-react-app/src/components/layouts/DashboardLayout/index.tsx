@@ -98,10 +98,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <MobileHeader onOpenSidebar={() => setIsSidebarOpen(true)} />
 
                 {/* Page Content */}
-                <main className="flex-1 min-h-0">
-                    <div className="p-2">
-                        {children || <Outlet />}
-                    </div>
+                <main className="flex-1 min-h-0 px-4 md:px-6 lg:px-8 py-2 lg:py-6">
+                       {children || <Outlet />}
                 </main>
 
                 <Footer />

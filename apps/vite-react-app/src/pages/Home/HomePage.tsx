@@ -112,7 +112,7 @@ export default function HomePage() {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+            <div>
                 {/* Recent Activities Section */}
                 <div className="mb-12">
                     <div className="flex items-center justify-between mb-6">

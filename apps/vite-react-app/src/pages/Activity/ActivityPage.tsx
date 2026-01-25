@@ -51,10 +51,10 @@ export default function ActivityPage() {
     const hasFilters = search || resourceType !== "all" || actionType !== "all"
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-6">
-                {/* Header */}
-                <div className="mb-8">
+        <div className="flex flex-col min-h-screen">
+            {/* Header */}
+            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div>
                     <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground mb-2">
                         Log <span className="text-primary">Aktivitas</span>
                     </h1>
@@ -62,7 +62,10 @@ export default function ActivityPage() {
                         Pantau semua aktivitas pada folder dan file Anda
                     </p>
                 </div>
+            </div>
 
+            {/* Content Area */}
+            <div className="flex-1 py-6">
                 {/* Filters */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-6">
                     <div className="relative flex-1 max-w-md">
@@ -139,63 +142,61 @@ export default function ActivityPage() {
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1">
-                    {isLoading && (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="flex items-center gap-2">
-                                <Loader2 className="h-6 w-6 animate-spin" />
-                                <span>Memuat aktivitas...</span>
-                            </div>
+                {/* State Content */}
+                {isLoading && (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="flex items-center gap-2">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                            <span>Memuat aktivitas...</span>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {error && (
-                        <div className="text-center py-12">
-                            <div className="text-red-600 text-lg mb-2">Gagal memuat aktivitas</div>
-                            <div className="text-muted-foreground/70 text-sm mb-4">
-                                {error.message}
-                            </div>
-                            <Button onClick={() => refetch()} variant="outline">
-                                Coba Lagi
-                            </Button>
+                {error && (
+                    <div className="text-center py-12">
+                        <div className="text-red-600 text-lg mb-2">Gagal memuat aktivitas</div>
+                        <div className="text-muted-foreground/70 text-sm mb-4">
+                            {error.message}
                         </div>
-                    )}
+                        <Button onClick={() => refetch()} variant="outline">
+                            Coba Lagi
+                        </Button>
+                    </div>
+                )}
 
-                    {!isLoading && !error && (
-                        <>
-                            <ActivityFeed activities={activities} />
+                {!isLoading && !error && (
+                    <>
+                        <ActivityFeed activities={activities} />
 
-                            {/* Pagination */}
-                            {meta && (meta.has_prev || meta.has_next) && (
-                                <div className="flex items-center justify-between mt-8 pt-6 border-t">
-                                    <div className="text-sm text-muted-foreground">
-                                        Halaman {meta.page} dari {meta.total_pages} ({meta.total_items} total)
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                                            disabled={!meta.has_prev}
-                                        >
-                                            Sebelumnya
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setPage(p => p + 1)}
-                                            disabled={!meta.has_next}
-                                        >
-                                            Selanjutnya
-                                        </Button>
-                                    </div>
+                        {/* Pagination */}
+                        {meta && (meta.has_prev || meta.has_next) && (
+                            <div className="flex items-center justify-between mt-8 pt-6 border-t">
+                                <div className="text-sm text-muted-foreground">
+                                    Halaman {meta.page} dari {meta.total_pages} ({meta.total_items} total)
                                 </div>
-                            )}
-                        </>
-                    )}
-                </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                                        disabled={!meta.has_prev}
+                                    >
+                                        Sebelumnya
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setPage(p => p + 1)}
+                                        disabled={!meta.has_next}
+                                    >
+                                        Selanjutnya
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </div>
-    )
+    );
 }
