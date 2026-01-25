@@ -58,7 +58,7 @@ export function CalendarListView({
                         <TableHead className="w-[200px]">Waktu</TableHead>
                         <TableHead className="w-[200px]">Lokasi</TableHead>
                         <TableHead className="w-[150px]">Kategori</TableHead>
-                        <TableHead>PIC / Peserta</TableHead>
+                        <TableHead>PIC </TableHead>
                         <TableHead className="w-[80px]">Aksi</TableHead>
                     </TableRow>
                 </TableHeader>

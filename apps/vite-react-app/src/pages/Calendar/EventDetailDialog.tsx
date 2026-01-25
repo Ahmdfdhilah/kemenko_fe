@@ -109,7 +109,7 @@ export function EventDetailDialog({
                                     <Users className="h-4 w-4 text-muted-foreground" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold">PIC / Peserta</p>
+                                    <p className="text-sm font-semibold">PIC </p>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {event.pic && event.pic.length > 0 ? (
                                             event.pic.map((p, i) => (

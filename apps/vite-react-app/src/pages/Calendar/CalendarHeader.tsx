@@ -38,7 +38,7 @@ export function CalendarHeader({
                     Agenda <span className="text-primary">Kegiatan</span>
                 </>
             }
-            description="Jadwal agenda dan rapat koordinasi Kemenko"
+            description="Jadwal agenda dan rapat koordinasi"
             breadcrumbs={[
                 { label: "Agenda Kegiatan" }
             ]}

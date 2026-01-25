@@ -5,7 +5,6 @@ import {
     FolderCheck,
     Home,
     Settings,
-    Users,
 } from "lucide-react";
 
 
@@ -46,19 +45,11 @@ export const appMenuItems: SidebarItem[] = [
         allowedRoles: ['admin', 'user'],
     },
 
-    // Management System - Admin only
     {
-        title: 'Manajemen Sistem',
+        title: 'Manajemen Users',
         icon: Settings,
         allowedRoles: ['admin'],
-        children: [
-            {
-                title: 'Pengguna',
-                href: '/management/users',
-                icon: Users,
-                allowedRoles: ['admin'],
-            }
-        ],
+        href: '/management/users',
     },
 
 

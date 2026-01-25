@@ -21,7 +21,6 @@ export function CalendarCell({
 }: CalendarCellProps) {
     const formattedDate = format(day, "d");
 
-    // Sort events by time if needed, though usually they come sorted from API
     const sortedEvents = [...events].sort((a, b) =>
         parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime()
     );

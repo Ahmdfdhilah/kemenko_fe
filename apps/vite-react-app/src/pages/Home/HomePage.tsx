@@ -13,6 +13,13 @@ import { useActivities } from '@/hooks/useActivities'
 import { useAuth } from "@/hooks/useAuth"
 import { ScrollToTopLink } from "@/components/common/ScrollToTopLink"
 import { ActivityFeed } from "@/pages/Activity/ActivityFeed"
+import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
+import { CalendarGrid } from '../Calendar/CalendarGrid';
+import { EventDetailDialog } from '../Calendar/EventDetailDialog';
+import { eventService, Event } from '@/services/events';
+import { useQuery } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HomePage() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -21,6 +28,9 @@ export default function HomePage() {
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [editingFolder, setEditingFolder] = useState<FolderBase | null>(null)
     const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null)
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     const {
         data: foldersResponse,
@@ -45,6 +55,30 @@ export default function HomePage() {
         sort_by: 'created_at',
         sort_type: 'desc'
     })
+
+    const { data: eventsData, isLoading: isLoadingEvents } = useQuery({
+        queryKey: ['events', format(currentDate, 'yyyy-MM')],
+        queryFn: async () => {
+            const startStr = startOfMonth(currentDate).toISOString();
+            const endStr = endOfMonth(currentDate).toISOString();
+            return eventService.eventGetAll({
+                page: 1,
+                limit: 1000,
+                start_date: startStr,
+                end_date: endStr,
+            });
+        }
+    });
+
+    const calendarEvents = eventsData?.items || [];
+
+    const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+    const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+    const handleToday = () => setCurrentDate(new Date());
+    const handleEventClick = (event: Event) => {
+        setSelectedEvent(event);
+        setIsDetailOpen(true);
+    };
 
     const createFolderMutation = useCreateFolder()
     const updateFolderMutation = useUpdateFolder()
@@ -113,33 +147,6 @@ export default function HomePage() {
     return (
         <div className="flex flex-col h-full">
             <div>
-                {/* Recent Activities Section */}
-                <div className="mb-12">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground">
-                                Aktivitas <span className="text-primary">Terbaru</span>
-                            </h2>
-                            <p className="text-muted-foreground text-sm mt-1">
-                                Pembaruan terkini dari ruang kerja Anda
-                            </p>
-                        </div>
-                        <ScrollToTopLink to='/activities'>
-                            <Button variant="outline" size="sm">
-                                Lihat Semua
-                            </Button>
-                        </ScrollToTopLink>
-                    </div>
-
-                    {isLoadingActivities ? (
-                        <div className="flex items-center justify-center py-8">
-                            <Loader2 className="h-6 w-6 animate-spin" />
-                        </div>
-                    ) : (
-                        <ActivityFeed activities={activities} />
-                    )}
-                </div>
-
                 {/* Latest Folders Section */}
                 <div>
                     <div className="flex flex-col lg:flex-row gap-4 justify-between mb-6">
@@ -245,7 +252,83 @@ export default function HomePage() {
                         }
                     </div>
                 </div>
+
+                {/* Calendar Section */}
+                <div className="my-12">
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+                        <div>
+                            <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground">
+                                Agenda <span className="text-primary">Kegiatan</span>
+                            </h2>
+                            <p className="text-muted-foreground text-sm mt-1">
+                                Jadwal agenda dan rapat koordinasi
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border">
+                            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={handleToday} className="font-medium px-4">
+                                {format(currentDate, 'MMMM yyyy', { locale: idLocale })}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8">
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="bg-card rounded-xl border shadow-sm p-4">
+                        {isLoadingEvents ? (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                        ) : (
+                            <CalendarGrid
+                                currentDate={currentDate}
+                                events={calendarEvents}
+                                onEventClick={handleEventClick}
+                            />
+                        )}
+                    </div>
+                </div>
+
+
+                {/* Recent Activities Section */}
+                <div className="my-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground">
+                                Aktivitas <span className="text-primary">Terbaru</span>
+                            </h2>
+                            <p className="text-muted-foreground text-sm mt-1">
+                                Pembaruan terkini dari ruang kerja Anda
+                            </p>
+                        </div>
+                        <ScrollToTopLink to='/activities'>
+                            <Button variant="outline" size="sm">
+                                Lihat Semua
+                            </Button>
+                        </ScrollToTopLink>
+                    </div>
+
+                    {isLoadingActivities ? (
+                        <div className="flex items-center justify-center py-8">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : (
+                        <ActivityFeed activities={activities} />
+                    )}
+                </div>
+
+
             </div>
+
+            {/* Event Detail Dialog (Read Only) */}
+            <EventDetailDialog
+                event={selectedEvent}
+                open={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+            />
 
             {/* Folder Modal */}
             <RootFolderModal
