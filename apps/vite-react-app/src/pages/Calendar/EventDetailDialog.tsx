@@ -7,8 +7,6 @@ import {
     Users,
     FileText,
     Navigation,
-    Pencil,
-    Trash2
 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -26,18 +24,12 @@ interface EventDetailDialogProps {
     event: Event | null;
     open: boolean;
     onClose: () => void;
-    isAdmin: boolean;
-    onEdit: (event: Event) => void;
-    onDelete: (id: string) => void;
 }
 
 export function EventDetailDialog({
     event,
     open,
     onClose,
-    isAdmin,
-    onEdit,
-    onDelete
 }: EventDetailDialogProps) {
     if (!event) return null;
 
@@ -57,16 +49,6 @@ export function EventDetailDialog({
                     </div>
                     <div className="flex justify-between items-start">
                         <DialogTitle className="text-xl font-bold leading-tight pr-8">{event.name}</DialogTitle>
-                        {isAdmin && (
-                            <div className="flex gap-1 absolute right-12 top-6">
-                                <Button variant="ghost" size="icon" onClick={() => onEdit(event)} className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => onDelete(event.id)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        )}
                     </div>
                     <DialogDescription className="pt-2">
                         Detail agenda kegiatan dan rapat koordinasi

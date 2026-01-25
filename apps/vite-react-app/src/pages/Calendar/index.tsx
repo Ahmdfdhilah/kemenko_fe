@@ -12,8 +12,10 @@ import { useAuth } from '@/hooks/useAuth';
 // Modular Components
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
+import { CalendarListView } from './CalendarListView';
 import { EventDetailDialog } from './EventDetailDialog';
 import { EventFormDialog } from './EventFormDialog';
+import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 
 export default function CalendarPage() {
     const { user } = useAuth();
@@ -21,17 +23,18 @@ export default function CalendarPage() {
 
     // State
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [searchQuery, setSearchQuery] = useState('');
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
     const isAdmin = user?.role === 'admin';
 
     // Queries
     const { data, isLoading, error } = useQuery({
-        queryKey: ['events', format(currentDate, 'yyyy-MM'), searchQuery],
+        queryKey: ['events', format(currentDate, 'yyyy-MM')],
         queryFn: async () => {
             const startStr = startOfMonth(currentDate).toISOString();
             const endStr = endOfMonth(currentDate).toISOString();
@@ -40,7 +43,6 @@ export default function CalendarPage() {
                 limit: 1000,
                 start_date: startStr,
                 end_date: endStr,
-                search: searchQuery || undefined
             });
         }
     });
@@ -74,6 +76,8 @@ export default function CalendarPage() {
             queryClient.invalidateQueries({ queryKey: ['events'] });
             toast.success("Agenda berhasil dihapus");
             setIsDetailOpen(false);
+            setIsDeleteConfirmOpen(false);
+            setEventToDelete(null);
         },
         onError: (err: any) => {
             toast.error("Gagal menghapus agenda", { description: err.message });
@@ -102,8 +106,13 @@ export default function CalendarPage() {
     };
 
     const handleDeleteEvent = (id: string) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus agenda ini?")) {
-            deleteMutation.mutate(id);
+        setEventToDelete(id);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const executeDeleteEvent = async () => {
+        if (eventToDelete) {
+            await deleteMutation.mutateAsync(eventToDelete);
         }
     };
 
@@ -122,16 +131,14 @@ export default function CalendarPage() {
             {/* Header */}
             <CalendarHeader
                 currentDate={currentDate}
-                searchQuery={searchQuery}
                 isAdmin={isAdmin}
                 onPrevMonth={handlePrevMonth}
                 onNextMonth={handleNextMonth}
                 onToday={handleToday}
-                onSearchChange={setSearchQuery}
                 onAddEvent={handleAddEvent}
             />
 
-            <div className="flex-1">
+            <div className="flex-1 space-y-8 pb-10">
                 {error && (
                     <div className="bg-destructive/15 text-destructive p-4 rounded-lg flex items-center gap-3 mb-6">
                         <AlertCircle className="h-5 w-5" />
@@ -149,11 +156,26 @@ export default function CalendarPage() {
                         </div>
                     </div>
                 ) : (
-                    <CalendarGrid
-                        currentDate={currentDate}
-                        events={events}
-                        onEventClick={handleEventClick}
-                    />
+                    <>
+                        <CalendarGrid
+                            currentDate={currentDate}
+                            events={events}
+                            onEventClick={handleEventClick}
+                        />
+
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-semibold">Daftar Agenda</h3>
+                            </div>
+                            <CalendarListView
+                                events={events}
+                                isAdmin={isAdmin}
+                                onEdit={handleEditEvent}
+                                onDelete={handleDeleteEvent}
+                                onView={handleEventClick}
+                            />
+                        </div>
+                    </>
                 )}
 
                 {/* View Modal */}
@@ -161,9 +183,6 @@ export default function CalendarPage() {
                     event={selectedEvent}
                     open={isDetailOpen}
                     onClose={() => setIsDetailOpen(false)}
-                    isAdmin={isAdmin}
-                    onEdit={handleEditEvent}
-                    onDelete={handleDeleteEvent}
                 />
 
                 {/* Create/Edit Modal */}
@@ -172,6 +191,18 @@ export default function CalendarPage() {
                     open={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
                     onSubmit={handleFormSubmit}
+                />
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmationDialog
+                    isOpen={isDeleteConfirmOpen}
+                    onClose={() => setIsDeleteConfirmOpen(false)}
+                    title="Hapus Agenda"
+                    description="Apakah Anda yakin ingin menghapus agenda ini? Tindakan ini tidak dapat dibatalkan."
+                    onConfirm={executeDeleteEvent}
+                    isLoading={deleteMutation.isPending}
+                    variant="destructive"
+                    confirmText="Hapus"
                 />
             </div>
         </div>

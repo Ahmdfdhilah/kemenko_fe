@@ -270,39 +270,43 @@ export function EventFormDialog({
                                     />
                                 </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="location"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Ruangan / Alamat</FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                                    <Input placeholder="Contoh: Ruang Rapat Lt. 1" className="pl-9" {...field} />
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {(form.watch("location_type") === "offline" || form.watch("location_type") === "hybrid") && (
+                                    <FormField
+                                        control={form.control}
+                                        name="location"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Ruangan / Alamat</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="Contoh: Ruang Rapat Lt. 1" className="pl-9" {...field} />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
 
-                                <FormField
-                                    control={form.control}
-                                    name="meeting_link"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Tautan Virtual (Opsional)</FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                    <Link className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                                    <Input placeholder="https://zoom.us/j/..." className="pl-9" {...field} />
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {(form.watch("location_type") === "online" || form.watch("location_type") === "hybrid") && (
+                                    <FormField
+                                        control={form.control}
+                                        name="meeting_link"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Tautan Virtual {form.watch("location_type") === "hybrid" && "(Opsional)"}</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <Link className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="https://zoom.us/j/..." className="pl-9" {...field} />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
 
                                 <FormItem>
                                     <FormLabel>PIC / Peserta</FormLabel>
