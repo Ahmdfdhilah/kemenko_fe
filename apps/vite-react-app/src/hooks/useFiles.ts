@@ -31,6 +31,7 @@ export const useCreateFileLink = (folderId: string) => {
             })
             queryClient.invalidateQueries({ queryKey: ['files', folderId] })
             queryClient.invalidateQueries({ queryKey: ['folder', folderId] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -51,6 +52,7 @@ export const useUploadFile = (folderId: string) => {
             })
             queryClient.invalidateQueries({ queryKey: ['files', folderId] })
             queryClient.invalidateQueries({ queryKey: ['folder', folderId] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -73,6 +75,7 @@ export const useUpdateFileLink = () => {
             queryClient.invalidateQueries({ queryKey: ['files'] })
             queryClient.invalidateQueries({ queryKey: ['file'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -95,6 +98,7 @@ export const useUpdateFileUpload = () => {
             queryClient.invalidateQueries({ queryKey: ['files'] })
             queryClient.invalidateQueries({ queryKey: ['file'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -115,6 +119,7 @@ export const useDeleteFile = () => {
             })
             queryClient.invalidateQueries({ queryKey: ['files'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {

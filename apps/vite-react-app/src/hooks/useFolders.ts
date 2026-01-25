@@ -37,6 +37,7 @@ export const useCreateFolder = () => {
             queryClient.invalidateQueries({ queryKey: ['folders'] })
             queryClient.invalidateQueries({ queryKey: ['root-folders'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -59,6 +60,7 @@ export const useUpdateFolder = () => {
             queryClient.invalidateQueries({ queryKey: ['folders'] })
             queryClient.invalidateQueries({ queryKey: ['root-folders'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {
@@ -80,6 +82,7 @@ export const useDeleteFolder = () => {
             queryClient.invalidateQueries({ queryKey: ['folders'] })
             queryClient.invalidateQueries({ queryKey: ['root-folders'] })
             queryClient.invalidateQueries({ queryKey: ['folder'] })
+            queryClient.invalidateQueries({ queryKey: ['activities'] })
         },
         onError: (error: Error) => {
             toast.error('Error', {

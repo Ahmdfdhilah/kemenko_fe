@@ -11,3 +11,6 @@ export * from './files';
 
 // Export permissions service
 export * from './permissions';
+
+// Export activities service
+export * from './activities';

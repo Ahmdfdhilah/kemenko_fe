@@ -1,5 +1,6 @@
 import { UserRole } from "@/services/users";
 import {
+    Activity,
     FolderCheck,
     Home,
     Settings,

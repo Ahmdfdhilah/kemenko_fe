@@ -18,6 +18,7 @@ import { DashboardLayout } from './components/layouts/DashboardLayout';
 import FoldersPage from './pages/Folders/FoldersPage';
 import FolderDetailPage from './pages/Folders/FolderDetailPage';
 import UsersPage from './pages/admin/Users/UsersPage';
+import ActivityPage from './pages/Activity/ActivityPage';
 
 function App() {
   return (
@@ -70,6 +71,14 @@ function App() {
                           element={
                             <ProtectedRoute requiredRoles={['admin', 'user']}>
                               <FolderDetailPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/activities"
+                          element={
+                            <ProtectedRoute requiredRoles={['admin', 'user']}>
+                              <ActivityPage />
                             </ProtectedRoute>
                           }
                         />

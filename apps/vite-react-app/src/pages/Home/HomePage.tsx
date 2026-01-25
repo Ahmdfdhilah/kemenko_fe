@@ -9,10 +9,10 @@ import { Button } from "@workspace/ui/components/button"
 import { Search, Plus, FolderPlus, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useCreateFolder, useUpdateFolder, useDeleteFolder, useRootFolders } from '@/hooks/useFolders'
+import { useActivities } from '@/hooks/useActivities'
 import { useAuth } from "@/hooks/useAuth"
-import HeroSection from "@/components/common/HeroSection"
-import Gallery from "@/components/common/Gallery"
 import { ScrollToTopLink } from "@/components/common/ScrollToTopLink"
+import { ActivityFeed } from "@/pages/Activity/ActivityFeed"
 
 export default function HomePage() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -29,10 +29,20 @@ export default function HomePage() {
         refetch: refetchFolders
     } = useRootFolders({
         page: 1,
-        limit: 20,
+        limit: 6,
         search: searchTerm || null,
         parent_id: null,
         sort_by: 'updated_at',
+        sort_type: 'desc'
+    })
+
+    const {
+        data: activitiesResponse,
+        isLoading: isLoadingActivities,
+    } = useActivities({
+        page: 1,
+        limit: 5,
+        sort_by: 'created_at',
         sort_type: 'desc'
     })
 
@@ -98,120 +108,142 @@ export default function HomePage() {
         deleteFolderMutation.isPending
 
     const folders = foldersResponse?.items || []
+    const activities = activitiesResponse?.items || []
 
     return (
         <div className="flex flex-col h-full">
-            <HeroSection
-                title={
-                    <div className='md:max-w-2xl lg:max-w-3xl'>
-                        <p className='uppercase text-sm sm:text-base lg:text-xl font-thin my-1 sm:my-2 tracking-wide'>INSPEKTORAT KEMENKO PANGAN</p>
-                        Kelola Dokumen Lebih
-                        <span className='text-tertiary'>  Mudah <span className="text-popover"> dan</span> Terintegrasi</span>
-                    </div>
-                }
-                subtitle='SIMF adalah aplikasi internal Inspektorat Kemenko Pangan yang dirancang khusus untuk mempermudah manajemen folder digital yang aman, cepat, dan efisien dalam mendukung pengelolaan dokumen dan pelaksanaan tugas internal Inspektorat.' />
-
-            <div className="px-4 md:px-6 lg:px-8 xl:px-12">
-                <Gallery />
-                <div className="flex flex-col lg:flex-row gap-4 justify-between  px-4 md:px-6 py-4">
-                    <div className="w-full max-w-md">
-                        <h2 className="text-3xl lg:text-5xl font-extrabold text-foreground mb-4">
-                            Dokumen<span className="text-tertiary"> Terbaru</span>
-                        </h2>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                            <Input
-                                type="search"
-                                placeholder="Cari dokumen dan kategori..."
-                                className="pl-10 border-border focus:border-primary focus:ring-primary"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+            <div className="px-4 md:px-6 lg:px-8 xl:px-12 py-6">
+                {/* Recent Activities Section */}
+                <div className="mb-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground">
+                                Aktivitas <span className="text-primary">Terbaru</span>
+                            </h2>
+                            <p className="text-muted-foreground text-sm mt-1">
+                                Pembaruan terkini dari ruang kerja Anda
+                            </p>
                         </div>
-                    </div>
-
-                    {/* Create Folder Button - Only visible for admins */}
-                    {user?.role === 'admin' && (
-                        <div className="flex gap-2">
-                            <Button
-                                onClick={handleCreateFolder}
-                                className="flex items-center gap-2"
-                                disabled={isLoading}
-                            >
-                                <FolderPlus className="h-4 w-4" />
-                                Buat Folder
+                        <ScrollToTopLink to='/activities'>
+                            <Button variant="outline" size="sm">
+                                Lihat Semua
                             </Button>
+                        </ScrollToTopLink>
+                    </div>
+
+                    {isLoadingActivities ? (
+                        <div className="flex items-center justify-center py-8">
+                            <Loader2 className="h-6 w-6 animate-spin" />
                         </div>
+                    ) : (
+                        <ActivityFeed activities={activities} />
                     )}
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 p-4 md:p-6 overflow-auto">
-                    {isLoadingFolders && (
-                        <div className="flex items-center justify-center py-12">
-                            <div className="flex items-center gap-2">
-                                <Loader2 className="h-6 w-6 animate-spin" />
-                                <span>Memuat folder...</span>
+                {/* Latest Folders Section */}
+                <div>
+                    <div className="flex flex-col lg:flex-row gap-4 justify-between mb-6">
+                        <div className="w-full max-w-md">
+                            <h2 className="text-2xl lg:text-3xl font-extrabold text-foreground mb-4">
+                                Folder <span className="text-primary">Terbaru</span>
+                            </h2>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                                <Input
+                                    type="search"
+                                    placeholder="Cari folder..."
+                                    className="pl-10 border-border focus:border-primary focus:ring-primary"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
                         </div>
-                    )}
 
-                    {foldersError && (
-                        <div className="text-center py-12">
-                            <div className="text-red-600 text-lg mb-2">Gagal memuat folder</div>
-                            <div className="text-muted-foreground/70 text-sm mb-4">
-                                {foldersError.message}
-                            </div>
-                            <Button onClick={() => refetchFolders()} variant="outline">
-                                Coba Lagi
-                            </Button>
-                        </div>
-                    )}
-
-                    {!isLoadingFolders && !foldersError && folders.length === 0 && (
-                        <div className="text-center py-12">
-                            <div className="text-muted-foreground text-lg mb-2">Folder tidak ditemukan</div>
-                            <div className="text-muted-foreground/70 text-sm mb-4">
-                                {searchTerm
-                                    ? "Coba sesuaikan kata kunci pencarian Anda"
-                                    : "Belum ada folder yang dibuat"
-                                }
-                            </div>
-                            {user?.role === 'admin' && !searchTerm && (
-                                <Button onClick={handleCreateFolder} variant="outline">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Buat Folder Pertama Anda
+                        {/* Create Folder Button - Only visible for admins */}
+                        {user?.role === 'admin' && (
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={handleCreateFolder}
+                                    className="flex items-center gap-2"
+                                    disabled={isLoading}
+                                >
+                                    <FolderPlus className="h-4 w-4" />
+                                    Buat Folder
                                 </Button>
-                            )}
-                        </div>
-                    )}
-
-                    {!isLoadingFolders && !foldersError && folders.length > 0 && (
-                        <>
-                            <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-8">
-                                {folders.map((folder) => (
-                                    <RootFolderCard
-                                        key={folder.id}
-                                        folder={folder}
-                                        isAdmin={user?.role === 'admin'}
-                                        onUpdate={handleEditFolder}
-                                        onDelete={(id) => setDeletingFolderId(id)}
-                                    />
-                                ))}
                             </div>
-                        </>
-                    )}
-                    {
-                        foldersResponse?.meta.has_next ? (
+                        )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1">
+                        {isLoadingFolders && (
+                            <div className="flex items-center justify-center py-12">
+                                <div className="flex items-center gap-2">
+                                    <Loader2 className="h-6 w-6 animate-spin" />
+                                    <span>Memuat folder...</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {foldersError && (
+                            <div className="text-center py-12">
+                                <div className="text-red-600 text-lg mb-2">Gagal memuat folder</div>
+                                <div className="text-muted-foreground/70 text-sm mb-4">
+                                    {foldersError.message}
+                                </div>
+                                <Button onClick={() => refetchFolders()} variant="outline">
+                                    Coba Lagi
+                                </Button>
+                            </div>
+                        )}
+
+                        {!isLoadingFolders && !foldersError && folders.length === 0 && (
+                            <div className="text-center py-12">
+                                <div className="text-muted-foreground text-lg mb-2">Folder tidak ditemukan</div>
+                                <div className="text-muted-foreground/70 text-sm mb-4">
+                                    {searchTerm
+                                        ? "Coba sesuaikan kata kunci pencarian Anda"
+                                        : "Belum ada folder yang dibuat"
+                                    }
+                                </div>
+                                {user?.role === 'admin' && !searchTerm && (
+                                    <Button onClick={handleCreateFolder} variant="outline">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Buat Folder Pertama Anda
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
+                        {!isLoadingFolders && !foldersError && folders.length > 0 && (
                             <>
-                                <ScrollToTopLink to='/folders'>
-                                    <p className="p-3 rounded-lg bg-primary text-popover font-bold w-fit hover:bg-primary/80">Lihat lebih banyak</p>
-                                </ScrollToTopLink>
+                                <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-8">
+                                    {folders.map((folder) => (
+                                        <RootFolderCard
+                                            key={folder.id}
+                                            folder={folder}
+                                            isAdmin={user?.role === 'admin'}
+                                            onUpdate={handleEditFolder}
+                                            onDelete={(id) => setDeletingFolderId(id)}
+                                        />
+                                    ))}
+                                </div>
                             </>
-                        ) : (
-                            null
-                        )
-                    }
+                        )}
+                        {
+                            foldersResponse?.meta.has_next ? (
+                                <>
+                                    <ScrollToTopLink to='/folders'>
+                                        <Button variant="default" className="font-bold">
+                                            Lihat Lebih Banyak
+                                        </Button>
+                                    </ScrollToTopLink>
+                                </>
+                            ) : (
+                                null
+                            )
+                        }
+                    </div>
                 </div>
             </div>
 
