@@ -10,7 +10,6 @@ import {
     User,
     Type,
     FileText,
-    FolderOpen,
     Loader2,
     X
 } from 'lucide-react';
@@ -42,8 +41,8 @@ import {
 } from '@workspace/ui/components/select';
 import { Badge } from '@workspace/ui/components/badge';
 import { Event, LocationType } from '@/services/events';
-import { folderService } from '@/services/folders';
-import { useQuery } from '@tanstack/react-query';
+// import { folderService } from '@/services/folders';
+// import { useQuery } from '@tanstack/react-query';
 
 const formSchema = z.object({
     name: z.string().min(1, "Nama agenda wajib diisi"),
@@ -125,13 +124,13 @@ export function EventFormDialog({
     }, [event, open, form]);
 
     // Fetch folders for documentation linkage
-    const { data: folderData } = useQuery({
-        queryKey: ['folders-simple'],
-        queryFn: () => folderService.folderGetAll({ page: 1, limit: 100 }),
-        enabled: open
-    });
+    // const { data: folderData } = useQuery({
+    //     queryKey: ['folders-simple'],
+    //     queryFn: () => folderService.folderGetAll({ page: 1, limit: 100 }),
+    //     enabled: open
+    // });
 
-    const folders = folderData?.items || [];
+    // const folders = folderData?.items || [];
 
     const handleAddPic = () => {
         if (picInput.trim()) {
@@ -353,7 +352,7 @@ export function EventFormDialog({
                                     <FormMessage />
                                 </FormItem>
 
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="documentation_folder_id"
                                     render={({ field }) => (
@@ -382,7 +381,7 @@ export function EventFormDialog({
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                /> */}
 
                                 <FormField
                                     control={form.control}
