@@ -14,7 +14,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Search, Loader2, RefreshCw, X } from "lucide-react"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import { Search, Loader2, X, ListFilter } from "lucide-react"
 
 export default function ActivityPage() {
     const [page, setPage] = useState(1)
@@ -28,7 +33,6 @@ export default function ActivityPage() {
         isLoading,
         error,
         refetch,
-        isFetching
     } = useActivities({
         page,
         limit,
@@ -70,21 +74,89 @@ export default function ActivityPage() {
             <div className="flex-1">
                 {/* Filters */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-6">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                        <Input
-                            type="search"
-                            placeholder="Cari aktivitas..."
-                            className="pl-10"
-                            value={search}
-                            onChange={(e) => {
-                                setSearch(e.target.value)
-                                setPage(1)
-                            }}
-                        />
+                    <div className="flex items-center gap-2 flex-1">
+                        <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                            <Input
+                                type="search"
+                                placeholder="Cari aktivitas..."
+                                className="pl-10"
+                                value={search}
+                                onChange={(e) => {
+                                    setSearch(e.target.value)
+                                    setPage(1)
+                                }}
+                            />
+                        </div>
+
+                        {/* Mobile Filter Popover Trigger */}
+                        <div className="lg:hidden">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="icon" className="shrink-0 bg-background text-primary border-primary/20 hover:bg-primary/5">
+                                        <ListFilter className="h-4 w-4" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80" align="end">
+                                    <div className="space-y-4">
+                                        <div className="font-medium">Filter Aktivitas</div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Sumber</label>
+                                            <Select
+                                                value={resourceType}
+                                                onValueChange={(value) => {
+                                                    setResourceType(value as ActivityResourceType | "all")
+                                                    setPage(1)
+                                                }}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Sumber" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">Semua Sumber</SelectItem>
+                                                    <SelectItem value="folder">Folder</SelectItem>
+                                                    <SelectItem value="file">File</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Aksi</label>
+                                            <Select
+                                                value={actionType}
+                                                onValueChange={(value) => {
+                                                    setActionType(value as ActivityActionType | "all")
+                                                    setPage(1)
+                                                }}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Aksi" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">Semua Aksi</SelectItem>
+                                                    <SelectItem value="created">Dibuat</SelectItem>
+                                                    <SelectItem value="updated">Diperbarui</SelectItem>
+                                                    <SelectItem value="deleted">Dihapus</SelectItem>
+                                                    <SelectItem value="moved">Dipindahkan</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {hasFilters && (
+                                            <Button
+                                                variant="outline"
+                                                onClick={handleClearFilters}
+                                                className="w-full text-destructive border-destructive/20 hover:bg-destructive/10"
+                                            >
+                                                <X className="h-4 w-4 mr-2" />
+                                                Hapus Filter
+                                            </Button>
+                                        )}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="hidden lg:flex flex-wrap gap-3">
                         <Select
                             value={resourceType}
                             onValueChange={(value) => {
@@ -131,17 +203,8 @@ export default function ActivityPage() {
                                 <X className="h-4 w-4" />
                             </Button>
                         )}
-
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => refetch()}
-                            disabled={isFetching}
-                            title="Muat ulang"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-                        </Button>
                     </div>
+
                 </div>
 
                 {/* State Content */}

@@ -16,7 +16,8 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    ArrowUpDown
+    ArrowUpDown,
+    ListFilter
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCreateFolder, useUpdateFolder, useDeleteFolder, useRootFolders } from '@/hooks/useFolders'
@@ -28,6 +29,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@workspace/ui/components/popover"
 import { getPageNumbers } from "@/utils/pagination"
 
 export default function FoldersPage() {
@@ -211,18 +217,79 @@ export default function FoldersPage() {
                 <div className="flex flex-col gap-4">
                     {/* Search and Filters */}
                     <div className="flex flex-col lg:flex-row gap-4">
-                        <div className="relative flex-1 max-w-2xl">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                            <Input
-                                type="search"
-                                placeholder="Cari folder berdasarkan judul atau deskripsi..."
-                                className="pl-10 border-border focus:border-primary focus:ring-primary"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="flex items-center gap-2 flex-1">
+                            <div className="relative flex-1 max-w-2xl">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                                <Input
+                                    type="search"
+                                    placeholder="Cari folder berdasarkan judul atau deskripsi..."
+                                    className="pl-10 border-border focus:border-primary focus:ring-primary"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Mobile Filter Popover */}
+                            <div className="lg:hidden">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" size="icon" className="shrink-0 bg-background text-primary border-primary/20 hover:bg-primary/5">
+                                            <ListFilter className="h-4 w-4" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80" align="end">
+                                        <div className="space-y-4">
+                                            <div className="font-medium">Pengaturan Tampilan</div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Urutkan Berdasarkan</label>
+                                                <Select value={sortBy} onValueChange={handleSortByChange}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Urutkan berdasarkan" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="updated_at">Terakhir Diubah</SelectItem>
+                                                        <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
+                                                        <SelectItem value="title">Judul</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Arah Urutan</label>
+                                                <div className="flex items-center justify-between border rounded-md px-3 py-2">
+                                                    <span className="text-sm text-muted-foreground">
+                                                        {sortType === 'asc' ? 'A - Z (Menaik)' : 'Z - A (Menurun)'}
+                                                    </span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={toggleSortType}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        <ArrowUpDown className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Item Per Halaman</label>
+                                                <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="12">12 per halaman</SelectItem>
+                                                        <SelectItem value="24">24 per halaman</SelectItem>
+                                                        <SelectItem value="36">36 per halaman</SelectItem>
+                                                        <SelectItem value="48">48 per halaman</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
 
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="hidden lg:flex gap-2 flex-wrap">
                             <Select value={sortBy} onValueChange={handleSortByChange}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Urutkan berdasarkan" />

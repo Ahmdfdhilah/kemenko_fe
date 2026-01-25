@@ -4,7 +4,7 @@ import { FolderSummary } from "@/services/folders/types";
 
 
 // Re-export UserSummary for convenience
-export type { UserSummary };
+export type { UserSummary, FolderSummary };
 
 // PERMISSION BASE
 export interface PermissionBase {
