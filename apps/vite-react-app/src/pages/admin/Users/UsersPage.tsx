@@ -42,6 +42,7 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { UserModal } from "@/components/common/UserModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
+import { PageHeader } from "@/components/common/PageHeader"
 import { UserBase, UserCreate, UserUpdate, UserRole } from "@/services/users/types"
 import { formatDate } from "@/utils/date"
 import { getPageNumbers } from "@/utils/pagination"
@@ -191,96 +192,94 @@ export default function UsersPage() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div>
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                            <div>
-                                <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground">
-                                    Manajemen <span className="text-tertiary">Pengguna</span>
-                                </h1>
-                                <p className="text-muted-foreground mt-2">
-                                    Kelola semua pengguna aplikasi
-                                </p>
-                            </div>
-
-                            {user?.role === 'admin' && (
-                                <Button
-                                    onClick={handleCreateUser}
-                                    className="flex items-center gap-2 w-fit"
-                                    disabled={isLoading}
-                                >
-                                    <UserPlus className="h-4 w-4" />
-                                    Tambah Pengguna Baru
-                                </Button>
-                            )}
+            <PageHeader
+                title={
+                    <>
+                        Manajemen <span className="text-tertiary">Pengguna</span>
+                    </>
+                }
+                description="Kelola semua pengguna aplikasi"
+                breadcrumbs={[
+                    { label: "Manajemen Pengguna" }
+                ]}
+                actions={
+                    user?.role === 'admin' && (
+                        <Button
+                            onClick={handleCreateUser}
+                            className="flex items-center gap-2 w-fit"
+                            disabled={isLoading}
+                        >
+                            <UserPlus className="h-4 w-4" />
+                            Tambah Pengguna Baru
+                        </Button>
+                    )
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* Search and Filters */}
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="relative flex-1 max-w-2xl">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                            <Input
+                                type="search"
+                                placeholder="Cari pengguna berdasarkan nama atau email..."
+                                className="pl-10 border-border focus:border-primary focus:ring-primary"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
 
-                        {/* Search and Filters */}
-                        <div className="flex flex-col lg:flex-row gap-4">
-                            <div className="relative flex-1 max-w-2xl">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                                <Input
-                                    type="search"
-                                    placeholder="Cari pengguna berdasarkan nama atau email..."
-                                    className="pl-10 border-border focus:border-primary focus:ring-primary"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+                        <div className="flex gap-2 flex-wrap">
+                            <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
+                                <SelectTrigger className="w-[140px]">
+                                    <SelectValue placeholder="Filter Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Role</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="user">User</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                            <div className="flex gap-2 flex-wrap">
-                                <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue placeholder="Filter Role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Semua Role</SelectItem>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="user">User</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <Select value={sortBy} onValueChange={handleSortByChange}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Urutkan berdasarkan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
+                                    <SelectItem value="name">Nama</SelectItem>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="role">Role</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                                <Select value={sortBy} onValueChange={handleSortByChange}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Urutkan berdasarkan" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
-                                        <SelectItem value="name">Nama</SelectItem>
-                                        <SelectItem value="email">Email</SelectItem>
-                                        <SelectItem value="role">Role</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={toggleSortType}
+                                title={sortType === 'asc' ? 'Urutkan Menurun' : 'Urutkan Menaik'}
+                            >
+                                <ArrowUpDown className="h-4 w-4" />
+                            </Button>
 
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={toggleSortType}
-                                    title={sortType === 'asc' ? 'Urutkan Menurun' : 'Urutkan Menaik'}
-                                >
-                                    <ArrowUpDown className="h-4 w-4" />
-                                </Button>
-
-                                <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                                    <SelectTrigger className="w-[130px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="10">10 per halaman</SelectItem>
-                                        <SelectItem value="25">25 per halaman</SelectItem>
-                                        <SelectItem value="50">50 per halaman</SelectItem>
-                                        <SelectItem value="100">100 per halaman</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                                <SelectTrigger className="w-[130px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="10">10 per halaman</SelectItem>
+                                    <SelectItem value="25">25 per halaman</SelectItem>
+                                    <SelectItem value="50">50 per halaman</SelectItem>
+                                    <SelectItem value="100">100 per halaman</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </div>
-            </div>
+            </PageHeader>
 
             {/* Content */}
-            <div className="flex-1 py-6">
+            <div className="flex-1">
                 {isLoadingUsers && (
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2">

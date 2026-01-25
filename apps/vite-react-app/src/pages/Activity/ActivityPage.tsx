@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useActivities } from "@/hooks/useActivities"
 import { ActivityFeed } from "./ActivityFeed"
+import { PageHeader } from "@/components/common/PageHeader"
 import { ActivityActionType, ActivityResourceType } from "@/services/activities/types"
 import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
@@ -53,19 +54,20 @@ export default function ActivityPage() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div>
-                    <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground mb-2">
+            <PageHeader
+                title={
+                    <>
                         Log <span className="text-primary">Aktivitas</span>
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Pantau semua aktivitas pada folder dan file Anda
-                    </p>
-                </div>
-            </div>
+                    </>
+                }
+                description="Pantau semua aktivitas pada folder dan file Anda"
+                breadcrumbs={[
+                    { label: "Aktivitas" }
+                ]}
+            />
 
             {/* Content Area */}
-            <div className="flex-1 py-6">
+            <div className="flex-1">
                 {/* Filters */}
                 <div className="flex flex-col lg:flex-row gap-4 mb-6">
                     <div className="relative flex-1 max-w-md">

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import {
-    ChevronRight,
     Folder,
     Grid,
     List,
@@ -39,6 +38,7 @@ import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
 import { FolderPermissionModal } from "@/components/common/FolderPermissionModal"
 import { SubFolderCard } from "@/components/common/SubFolderCard"
 import { FileCard } from "@/components/common/FileCard"
+import { PageHeader } from "@/components/common/PageHeader"
 
 type ViewMode = "list" | "grid"
 type ItemType = "folder" | "file"
@@ -232,105 +232,78 @@ export default function FolderDetailPage() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="py-6">
-                    <div className="flex flex-col gap-4">
-                        {/* Breadcrumb */}
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground flex-wrap">
-                            <Link to="/" className="hover:text-primary">
-                                Home
-                            </Link>
-                            <ChevronRight className="h-4 w-4" />
-                            <Link to="/folders" className="hover:text-primary">
-                                Folders
-                            </Link>
-                            {pathParts.map((part: string, index: number) => (
-                                <div key={index} className="flex items-center">
-                                    <ChevronRight className="h-4 w-4 mx-1" />
-                                    <span>{part}</span>
-                                </div>
-                            ))}
-                            <ChevronRight className="h-4 w-4 mx-1" />
-                            <span className="font-medium text-primary">{folder.title}</span>
-                        </div>
+            <PageHeader
+                title={folder.title}
+                description={folder.description || undefined}
+                breadcrumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Folders", href: "/folders" },
+                    ...pathParts.map((part) => ({ label: part })),
+                    { label: folder.title }
+                ]}
+                actions={
+                    <div className="flex items-center gap-2">
+                        {isAdmin && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setPermissionModalOpen(true)}
+                                className="flex items-center gap-2"
+                            >
+                                <Shield className="h-4 w-4" />
+                                Kelola Hak Akses
+                            </Button>
+                        )}
 
-                        {/* Title and Actions */}
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                            <div>
-                                <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground">
-                                    {folder.title}
-                                </h1>
-                                {folder.description && (
-                                    <p className="text-muted-foreground mt-2">
-                                        {folder.description}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                {isAdmin && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setPermissionModalOpen(true)}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Shield className="h-4 w-4" />
-                                        Kelola Hak Akses
+                        {(isAdmin || folder?.can_crud) && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button className="flex items-center gap-2 w-fit">
+                                        <Plus className="h-4 w-4" />
+                                        Baru
+                                        <ChevronDown className="h-4 w-4" />
                                     </Button>
-                                )}
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={handleCreateSubFolder}>
+                                        <FolderPlus className="h-4 w-4 mr-2" />
+                                        Folder Baru
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleCreateLink}>
+                                        <LinkIcon className="h-4 w-4 mr-2" />
+                                        Tambah Link
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleUploadFile}>
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Upload File
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
 
-                                {(isAdmin || folder?.can_crud) && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button className="flex items-center gap-2 w-fit">
-                                                <Plus className="h-4 w-4" />
-                                                Baru
-                                                <ChevronDown className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={handleCreateSubFolder}>
-                                                <FolderPlus className="h-4 w-4 mr-2" />
-                                                Folder Baru
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={handleCreateLink}>
-                                                <LinkIcon className="h-4 w-4 mr-2" />
-                                                Tambah Link
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={handleUploadFile}>
-                                                <Upload className="h-4 w-4 mr-2" />
-                                                Upload File
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-
-                                <div className="hidden md:flex border rounded-md">
-                                    <Button
-                                        variant={viewMode === "list" ? "secondary" : "ghost"}
-                                        size="icon"
-                                        className="h-10 w-10 rounded-r-none"
-                                        onClick={() => setViewMode("list")}
-                                    >
-                                        <List className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                        variant={viewMode === "grid" ? "secondary" : "ghost"}
-                                        size="icon"
-                                        className="h-10 w-10 rounded-l-none"
-                                        onClick={() => setViewMode("grid")}
-                                    >
-                                        <Grid className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
+                        <div className="hidden md:flex border rounded-md">
+                            <Button
+                                variant={viewMode === "list" ? "secondary" : "ghost"}
+                                size="icon"
+                                className="h-10 w-10 rounded-r-none"
+                                onClick={() => setViewMode("list")}
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant={viewMode === "grid" ? "secondary" : "ghost"}
+                                size="icon"
+                                className="h-10 w-10 rounded-l-none"
+                                onClick={() => setViewMode("grid")}
+                            >
+                                <Grid className="h-4 w-4" />
+                            </Button>
                         </div>
                     </div>
-                </div>
-            </div>
+                }
+            />
 
             {/* Content */}
-            <div className="flex-1 py-6">
+            <div className="flex-1">
                 {totalItems === 0 ? (
                     <Empty>
                         <EmptyHeader>

@@ -4,6 +4,7 @@ import { RootFolderCard } from "@/components/common/RootFolderCard"
 import { RootFolderModal } from "@/components/common/RootFolderModal"
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog"
 import { FolderPermissionModal } from "@/components/common/FolderPermissionModal"
+import { PageHeader } from "@/components/common/PageHeader"
 import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
 import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
@@ -186,84 +187,80 @@ export default function FoldersPage() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="py-6">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                            <div>
-                                <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground">
-                                    Semua <span className="text-primary">Folder</span>
-                                </h1>
-                                <p className="text-muted-foreground mt-2">
-                                    Berisi semua dokumen inspektorat
-                                </p>
-                            </div>
-
-                            {user?.role === 'admin' && (
-                                <Button
-                                    onClick={handleCreateFolder}
-                                    className="flex items-center gap-2 w-fit"
-                                    disabled={isLoading}
-                                >
-                                    <FolderPlus className="h-4 w-4" />
-                                    Buat Folder Baru
-                                </Button>
-                            )}
+            <PageHeader
+                title={
+                    <>
+                        <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">Semua <span className="text-primary">Folder</span></h1>
+                    </>
+                }
+                description="Berisi semua dokumen inspektorat"
+                breadcrumbs={[{ label: "Folders" }]}
+                actions={
+                    user?.role === 'admin' && (
+                        <Button
+                            onClick={handleCreateFolder}
+                            className="flex items-center gap-2 w-fit"
+                            disabled={isLoading}
+                        >
+                            <FolderPlus className="h-4 w-4" />
+                            Buat Folder Baru
+                        </Button>
+                    )
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* Search and Filters */}
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="relative flex-1 max-w-2xl">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                            <Input
+                                type="search"
+                                placeholder="Cari folder berdasarkan judul atau deskripsi..."
+                                className="pl-10 border-border focus:border-primary focus:ring-primary"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
 
-                        {/* Search and Filters */}
-                        <div className="flex flex-col lg:flex-row gap-4">
-                            <div className="relative flex-1 max-w-2xl">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
-                                <Input
-                                    type="search"
-                                    placeholder="Cari folder berdasarkan judul atau deskripsi..."
-                                    className="pl-10 border-border focus:border-primary focus:ring-primary"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+                        <div className="flex gap-2 flex-wrap">
+                            <Select value={sortBy} onValueChange={handleSortByChange}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Urutkan berdasarkan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="updated_at">Terakhir Diubah</SelectItem>
+                                    <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
+                                    <SelectItem value="title">Judul</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                            <div className="flex gap-2 flex-wrap">
-                                <Select value={sortBy} onValueChange={handleSortByChange}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Urutkan berdasarkan" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="updated_at">Terakhir Diubah</SelectItem>
-                                        <SelectItem value="created_at">Tanggal Dibuat</SelectItem>
-                                        <SelectItem value="title">Judul</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={toggleSortType}
+                                title={sortType === 'asc' ? 'Urutkan Menurun' : 'Urutkan Menaik'}
+                            >
+                                <ArrowUpDown className="h-4 w-4" />
+                            </Button>
 
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={toggleSortType}
-                                    title={sortType === 'asc' ? 'Urutkan Menurun' : 'Urutkan Menaik'}
-                                >
-                                    <ArrowUpDown className="h-4 w-4" />
-                                </Button>
-
-                                <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                                    <SelectTrigger className="w-[130px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="12">12 per halaman</SelectItem>
-                                        <SelectItem value="24">24 per halaman</SelectItem>
-                                        <SelectItem value="36">36 per halaman</SelectItem>
-                                        <SelectItem value="48">48 per halaman</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                                <SelectTrigger className="w-[130px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="12">12 per halaman</SelectItem>
+                                    <SelectItem value="24">24 per halaman</SelectItem>
+                                    <SelectItem value="36">36 per halaman</SelectItem>
+                                    <SelectItem value="48">48 per halaman</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </div>
-            </div>
+            </PageHeader>
 
             {/* Content */}
-            <div className="flex-1 py-6">
+            <div className="flex-1">
                 {isLoadingFolders && (
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2">

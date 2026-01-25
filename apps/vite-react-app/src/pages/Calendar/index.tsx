@@ -120,20 +120,18 @@ export default function CalendarPage() {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <CalendarHeader
-                    currentDate={currentDate}
-                    searchQuery={searchQuery}
-                    isAdmin={isAdmin}
-                    onPrevMonth={handlePrevMonth}
-                    onNextMonth={handleNextMonth}
-                    onToday={handleToday}
-                    onSearchChange={setSearchQuery}
-                    onAddEvent={handleAddEvent}
-                />
-            </div>
+            <CalendarHeader
+                currentDate={currentDate}
+                searchQuery={searchQuery}
+                isAdmin={isAdmin}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+                onToday={handleToday}
+                onSearchChange={setSearchQuery}
+                onAddEvent={handleAddEvent}
+            />
 
-            <div className="flex-1 py-6">
+            <div className="flex-1">
                 {error && (
                     <div className="bg-destructive/15 text-destructive p-4 rounded-lg flex items-center gap-3 mb-6">
                         <AlertCircle className="h-5 w-5" />
