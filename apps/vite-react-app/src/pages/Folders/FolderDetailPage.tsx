@@ -31,6 +31,7 @@ import { useCreateFolder, useUpdateFolder, useDeleteFolder } from "@/hooks/useFo
 import { useCreateFileLink, useUploadFile, useUpdateFileLink, useDeleteFile } from "@/hooks/useFiles"
 import { FolderBase, FolderCreate, FolderUpdate } from "@/services/folders/types"
 import { FileBase, FileCreateLink, FileUpdateLink, FileUpload } from "@/services/files/types"
+import { fileService } from "@/services/files"
 import { SubFolderModal } from "@/components/common/SubFolderModal"
 import { FileLinkModal } from "@/components/common/FileLinkModal"
 import { FileUploadModal } from "@/components/common/FileUploadModal"
@@ -194,10 +195,14 @@ export default function FolderDetailPage() {
         }
     }
 
-    const handleOpenFile = (file: { id: string; name: string; file_type: 'link' | 'upload' }) => {
-        // For simplified file info, we just open based on ID
-        // You might want to fetch full file details here if needed
-        console.log('Opening file:', file)
+    const handleOpenFile = (file: { id: string; name: string; file_type: 'link' | 'upload'; file_url?: string }) => {
+        if (file.file_url) {
+            window.open(file.file_url, '_blank')
+        } else {
+            // Fallback to construct download URL if file_url is missing
+            const url = fileService.getFileDownloadUrl(file.id)
+            window.open(url, '_blank')
+        }
     }
 
     if (isLoadingFolder) {

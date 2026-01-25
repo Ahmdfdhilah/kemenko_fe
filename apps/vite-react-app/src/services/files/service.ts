@@ -105,6 +105,15 @@ export class FileService extends BaseService {
         // Note: file delete endpoint is /files/:id, not under /folders
         return this.delete<{ message: string }>(`/../files/${fileId}`);
     }
+
+    /**
+     * Get file download/view URL
+     */
+    getFileDownloadUrl(fileId: string): string {
+        // Remove /folders prefix and construct the download URL
+        const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:8080/api/v1";
+        return `${baseUrl}/files/${fileId}/download`;
+    }
 }
 
 export const fileService = new FileService();

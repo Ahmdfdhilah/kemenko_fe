@@ -192,7 +192,7 @@ export default function FoldersPage() {
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                             <div>
                                 <h1 className="text-3xl lg:text-4xl font-extrabold text-foreground">
-                                    Semua <span className="text-tertiary">Folder</span>
+                                    Semua <span className="text-primary">Folder</span>
                                 </h1>
                                 <p className="text-muted-foreground mt-2">
                                     Berisi semua dokumen inspektorat

@@ -32,6 +32,12 @@ export const appMenuItems: SidebarItem[] = [
         icon: FolderCheck,
         allowedRoles: ['admin', 'user'],
     },
+    {
+        title: 'Aktivitas',
+        href: '/activities',
+        icon: Activity,
+        allowedRoles: ['admin', 'user'],
+    },
 
     // Management System - Admin only
     {
