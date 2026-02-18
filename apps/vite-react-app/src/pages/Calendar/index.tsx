@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { formatInWIB } from '@/utils/date';
 import { AlertCircle } from 'lucide-react';
 
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -34,7 +35,7 @@ export default function CalendarPage() {
 
     // Queries
     const { data, isLoading, error } = useQuery({
-        queryKey: ['events', format(currentDate, 'yyyy-MM')],
+        queryKey: ['events', formatInWIB(currentDate, 'yyyy-MM')],
         queryFn: async () => {
             const startStr = startOfMonth(currentDate).toISOString();
             const endStr = endOfMonth(currentDate).toISOString();

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, parseISO } from 'date-fns';
+import { formatInWIB, parseFromWIB } from '@/utils/date';
 import {
     CalendarIcon,
     Link,
@@ -118,8 +118,8 @@ export function EventFormDialog({
             if (!source) return;
             form.reset({
                 name: source.name,
-                start_time: format(parseISO(source.start_time), "yyyy-MM-dd'T'HH:mm"),
-                end_time: format(parseISO(source.end_time), "yyyy-MM-dd'T'HH:mm"),
+                start_time: formatInWIB(source.start_time, "yyyy-MM-dd'T'HH:mm"),
+                end_time: formatInWIB(source.end_time, "yyyy-MM-dd'T'HH:mm"),
                 location_type: source.location_type,
                 location: source.location || "",
                 meeting_link: source.meeting_link || "",
@@ -132,8 +132,8 @@ export function EventFormDialog({
         } else {
             form.reset({
                 name: "",
-                start_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                end_time: format(new Date(Date.now() + 3600000), "yyyy-MM-dd'T'HH:mm"),
+                start_time: formatInWIB(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                end_time: formatInWIB(new Date(Date.now() + 3600000), "yyyy-MM-dd'T'HH:mm"),
                 location_type: "offline",
                 location: "",
                 meeting_link: "",
@@ -209,8 +209,8 @@ export function EventFormDialog({
         try {
             const formattedValues = {
                 ...values,
-                start_time: new Date(values.start_time).toISOString(),
-                end_time: new Date(values.end_time).toISOString(),
+                start_time: parseFromWIB(values.start_time).toISOString(),
+                end_time: parseFromWIB(values.end_time).toISOString(),
                 documentation_folder_id: (values.documentation_folder_id === "none" || !values.documentation_folder_id) ? null : values.documentation_folder_id
             };
             await onSubmit(formattedValues);

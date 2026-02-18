@@ -1,5 +1,4 @@
-import { format, parseISO } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale';
+import { formatInWIB } from '@/utils/date';
 import {
     MoreHorizontal,
     Pencil,
@@ -72,10 +71,10 @@ export function CalendarListView({
                             <TableCell>
                                 <div className="flex flex-col text-sm">
                                     <span className="font-medium">
-                                        {format(parseISO(event.start_time), 'd MMM yyyy', { locale: idLocale })}
+                                        {formatInWIB(event.start_time, 'd MMM yyyy')}
                                     </span>
                                     <span className="text-muted-foreground text-xs">
-                                        {format(parseISO(event.start_time), 'HH:mm')} - {format(parseISO(event.end_time), 'HH:mm')}
+                                        {formatInWIB(event.start_time, 'HH:mm')} - {formatInWIB(event.end_time, 'HH:mm')} WIB
                                     </span>
                                 </div>
                             </TableCell>

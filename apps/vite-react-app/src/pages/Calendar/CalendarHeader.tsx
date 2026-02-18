@@ -1,5 +1,4 @@
-import { format } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale';
+import { formatInWIB } from '@/utils/date';
 import {
     ChevronLeft,
     ChevronRight,
@@ -50,7 +49,7 @@ export function CalendarHeader({
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" className="px-4 h-8 font-medium" onClick={onToday}>
-                            {format(currentDate, 'MMMM yyyy', { locale: idLocale })}
+                            {formatInWIB(currentDate, 'MMMM yyyy')}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={onNextMonth} className="h-8 w-8">
                             <ChevronRight className="h-4 w-4" />
@@ -71,7 +70,7 @@ export function CalendarHeader({
                                         <ChevronLeft className="h-4 w-4" />
                                     </Button>
                                     <span className="text-sm font-medium px-2">
-                                        {format(currentDate, 'MMMM yyyy', { locale: idLocale })}
+                                        {formatInWIB(currentDate, 'MMMM yyyy')}
                                     </span>
                                     <Button variant="ghost" size="icon" onClick={onNextMonth} className="h-8 w-8">
                                         <ChevronRight className="h-4 w-4" />

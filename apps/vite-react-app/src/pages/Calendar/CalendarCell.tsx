@@ -1,4 +1,5 @@
 import { format, parseISO } from 'date-fns';
+import { formatInWIB } from '@/utils/date';
 import { Video, Home as HomeIcon } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@workspace/ui/components/tooltip';
@@ -58,7 +59,7 @@ export function CalendarCell({
                             >
                                 <div className="flex items-center gap-1">
                                     {event.location_type === 'online' ? <Video className="h-2.5 w-2.5 shrink-0" /> : <HomeIcon className="h-2.5 w-2.5 shrink-0" />}
-                                    <span className="font-semibold">{format(parseISO(event.start_time), 'HH:mm')}</span>
+                                    <span className="font-semibold">{formatInWIB(event.start_time, 'HH:mm')}</span>
                                 </div>
                                 <div className="truncate mt-0.5">{event.name}</div>
                             </div>

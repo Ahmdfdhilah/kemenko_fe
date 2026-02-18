@@ -1,5 +1,4 @@
-import { format, parseISO } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale';
+import { formatInWIB } from '@/utils/date';
 import {
     MapPin,
     Clock,
@@ -85,10 +84,10 @@ export function EventDetailDialog({
                                     <div>
                                         <p className="text-sm font-semibold">Waktu</p>
                                         <p className="text-sm text-muted-foreground">
-                                            {format(parseISO(displayEvent.start_time), 'EEEE, d MMMM yyyy', { locale: idLocale })}
+                                            {formatInWIB(displayEvent.start_time, 'EEEE, d MMMM yyyy')}
                                         </p>
                                         <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-2 py-0.5 rounded inline-block mt-1">
-                                            {format(parseISO(displayEvent.start_time), 'HH:mm')} - {format(parseISO(displayEvent.end_time), 'HH:mm')} WIB
+                                            {formatInWIB(displayEvent.start_time, 'HH:mm')} - {formatInWIB(displayEvent.end_time, 'HH:mm')} WIB
                                         </p>
                                     </div>
                                 </div>
