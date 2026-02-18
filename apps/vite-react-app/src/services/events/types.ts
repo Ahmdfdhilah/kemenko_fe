@@ -3,6 +3,11 @@ import { FolderSummary } from "@/services/folders/types";
 
 export type LocationType = 'offline' | 'online' | 'hybrid';
 
+export interface EmailRecipient {
+    email: string;
+    name?: string;
+}
+
 export interface Event extends Base {
     name: string;
     start_time: string;
@@ -11,6 +16,8 @@ export interface Event extends Base {
     location?: string;
     meeting_link?: string;
     pic: string[];
+    participants?: string[];
+    email_recipients?: EmailRecipient[];
     event_type: string;
     description?: string;
     documentation_folder_id?: string | null;
@@ -27,6 +34,7 @@ export interface EventCreate {
     location?: string;
     meeting_link?: string;
     pic: string[];
+    email_recipients?: EmailRecipient[];
     event_type: string;
     description?: string;
     documentation_folder_id?: string | null;

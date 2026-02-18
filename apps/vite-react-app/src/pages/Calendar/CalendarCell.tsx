@@ -65,7 +65,7 @@ export function CalendarCell({
                         </TooltipTrigger>
                         <TooltipContent side="right" className="max-w-[200px] p-2">
                             <p className="font-bold mb-1 text-xs">{event.name}</p>
-                            <p className="text-[10px] text-muted-foreground line-clamp-2">{event.description}</p>
+                            <p className="text-[10px] line-clamp-2">{event.description}</p>
                         </TooltipContent>
                     </Tooltip>
                 ))}

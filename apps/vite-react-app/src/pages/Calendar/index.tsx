@@ -61,8 +61,9 @@ export default function CalendarPage() {
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: string, data: any }) => eventService.eventUpdate(id, data),
-        onSuccess: () => {
+        onSuccess: (_, { id }) => {
             queryClient.invalidateQueries({ queryKey: ['events'] });
+            queryClient.invalidateQueries({ queryKey: ['event', id] });
             toast.success("Berhasil memperbarui agenda");
         },
         onError: (err: any) => {

@@ -5,7 +5,8 @@ import {
     Pencil,
     Trash2,
     MapPin,
-    Video
+    Video,
+    Eye
 } from 'lucide-react';
 import {
     Table,
@@ -134,6 +135,7 @@ export function CalendarListView({
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(event); }}>
+                                            <Eye className="h-4 w-4 mr-2" />
                                             Lihat Detail
                                         </DropdownMenuItem>
                                         {isAdmin && (

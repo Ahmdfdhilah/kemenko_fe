@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +12,8 @@ import {
     Type,
     FileText,
     Loader2,
-    X
+    X,
+    Mail
 } from 'lucide-react';
 
 import { Button } from '@workspace/ui/components/button';
@@ -41,8 +43,8 @@ import {
 } from '@workspace/ui/components/select';
 import { Badge } from '@workspace/ui/components/badge';
 import { Event, LocationType } from '@/services/events';
-// import { folderService } from '@/services/folders';
-// import { useQuery } from '@tanstack/react-query';
+import { eventService } from '@/services/events';
+import { Loader2 as LoaderIcon } from 'lucide-react';
 
 const formSchema = z.object({
     name: z.string().min(1, "Nama agenda wajib diisi"),
@@ -52,13 +54,17 @@ const formSchema = z.object({
     location: z.string().optional(),
     meeting_link: z.string().url("Format tautan tidak valid").optional().or(z.literal("")),
     pic: z.array(z.string()).min(1, "Minimal pilih 1 PIC"),
+    email_recipients: z.array(z.object({
+        email: z.string().email("Format email tidak valid"),
+        name: z.string().optional(),
+    })).optional(),
     event_type: z.string().min(1, "Tipe agenda wajib diisi"),
     description: z.string().optional(),
     documentation_folder_id: z.string().optional().nullable(),
 });
 
 interface EventFormDialogProps {
-    event: Event | null; // null means create mode
+    event: Event | null;
     open: boolean;
     onClose: () => void;
     onSubmit: (data: any) => Promise<void>;
@@ -72,8 +78,18 @@ export function EventFormDialog({
 }: EventFormDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [picInput, setPicInput] = useState("");
+    const [emailInput, setEmailInput] = useState("");
+    const [nameInput, setNameInput] = useState("");
+    const [emailError, setEmailError] = useState<string>("");
 
     const isEditMode = !!event;
+
+    // Fetch fresh event data by ID when editing
+    const { data: freshEvent, isLoading: isFetchingDetail } = useQuery({
+        queryKey: ['event', event?.id],
+        queryFn: () => eventService.eventGetById(event!.id),
+        enabled: open && !!event?.id,
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -85,52 +101,51 @@ export function EventFormDialog({
             location: "",
             meeting_link: "",
             pic: [],
+            email_recipients: [],
             event_type: "Meeting",
             description: "",
             documentation_folder_id: null,
         },
     });
 
+    // Reset form with fresh API data when editing, or defaults when creating
     useEffect(() => {
-        if (open) {
-            if (event) {
-                form.reset({
-                    name: event.name,
-                    start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm"),
-                    end_time: format(parseISO(event.end_time), "yyyy-MM-dd'T'HH:mm"),
-                    location_type: event.location_type,
-                    location: event.location || "",
-                    meeting_link: event.meeting_link || "",
-                    pic: event.pic || [],
-                    event_type: event.event_type,
-                    description: event.description || "",
-                    documentation_folder_id: event.documentation_folder_id || null,
-                });
-            } else {
-                form.reset({
-                    name: "",
-                    start_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                    end_time: format(new Date(Date.now() + 3600000), "yyyy-MM-dd'T'HH:mm"),
-                    location_type: "offline",
-                    location: "",
-                    meeting_link: "",
-                    pic: [],
-                    event_type: "Meeting",
-                    description: "",
-                    documentation_folder_id: null,
-                });
-            }
+        if (!open) return;
+
+        if (isEditMode) {
+            // Use fresh data from API if available, otherwise fall back to list data
+            const source = freshEvent ?? event;
+            if (!source) return;
+            form.reset({
+                name: source.name,
+                start_time: format(parseISO(source.start_time), "yyyy-MM-dd'T'HH:mm"),
+                end_time: format(parseISO(source.end_time), "yyyy-MM-dd'T'HH:mm"),
+                location_type: source.location_type,
+                location: source.location || "",
+                meeting_link: source.meeting_link || "",
+                pic: source.pic || [],
+                email_recipients: source.email_recipients || [],
+                event_type: source.event_type,
+                description: source.description || "",
+                documentation_folder_id: source.documentation_folder_id || null,
+            });
+        } else {
+            form.reset({
+                name: "",
+                start_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                end_time: format(new Date(Date.now() + 3600000), "yyyy-MM-dd'T'HH:mm"),
+                location_type: "offline",
+                location: "",
+                meeting_link: "",
+                pic: [],
+                email_recipients: [],
+                event_type: "Meeting",
+                description: "",
+                documentation_folder_id: null,
+            });
         }
-    }, [event, open, form]);
+    }, [freshEvent, event, open, isEditMode, form]);
 
-    // Fetch folders for documentation linkage
-    // const { data: folderData } = useQuery({
-    //     queryKey: ['folders-simple'],
-    //     queryFn: () => folderService.folderGetAll({ page: 1, limit: 100 }),
-    //     enabled: open
-    // });
-
-    // const folders = folderData?.items || [];
 
     const handleAddPic = () => {
         if (picInput.trim()) {
@@ -142,15 +157,56 @@ export function EventFormDialog({
         }
     };
 
+    const handleAddEmailRecipient = () => {
+        const trimmedEmail = emailInput.trim();
+
+        // Validasi format email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!trimmedEmail) {
+            setEmailError("Email wajib diisi");
+            return;
+        }
+
+        if (!emailRegex.test(trimmedEmail)) {
+            setEmailError("Format email tidak valid");
+            return;
+        }
+
+        const currentEmails = form.getValues("email_recipients") || [];
+        // Cek apakah email sudah ada
+        const emailExists = currentEmails.some(recipient => recipient.email === trimmedEmail);
+
+        if (emailExists) {
+            setEmailError("Email sudah ditambahkan");
+            return;
+        }
+
+        form.setValue("email_recipients", [
+            ...currentEmails,
+            {
+                email: trimmedEmail,
+                name: nameInput.trim() || undefined
+            }
+        ]);
+
+        setEmailInput("");
+        setNameInput("");
+        setEmailError("");
+    };
+
     const handleRemovePic = (pic: string) => {
         const currentPics = form.getValues("pic");
         form.setValue("pic", currentPics.filter(p => p !== pic));
     };
 
+    const handleRemoveEmailRecipient = (email: string) => {
+        const currentEmails = form.getValues("email_recipients") || [];
+        form.setValue("email_recipients", currentEmails.filter(e => e.email !== email));
+    };
+
     const onFormSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true);
         try {
-            // Convert to ISO 8601 strings
             const formattedValues = {
                 ...values,
                 start_time: new Date(values.start_time).toISOString(),
@@ -170,14 +226,17 @@ export function EventFormDialog({
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[600px] p-0 gap-0 overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
                 <DialogHeader className="p-6 pb-2 border-b shrink-0">
-                    <DialogTitle className="text-xl font-bold">
+                    <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                        {isEditMode && isFetchingDetail && (
+                            <LoaderIcon className="h-4 w-4 animate-spin text-muted-foreground" />
+                        )}
                         {isEditMode ? "Sunting Agenda" : "Tambah Agenda Baru"}
                     </DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onFormSubmit)} className="flex-1 overflow-y-auto min-h-0">
-                        <div className="space-y-4 px-6 py-4">
+                        <div className="space-y-4 px-6 pt-4">
                             <div className="space-y-4">
                                 <FormField
                                     control={form.control}
@@ -351,38 +410,83 @@ export function EventFormDialog({
                                     </div>
                                     <FormMessage />
                                 </FormItem>
+                            </div>
 
-                                {/* <FormField
-                                    control={form.control}
-                                    name="documentation_folder_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Hubungkan ke Folder Dokumentasi</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value || undefined}
-                                                value={field.value || "none"}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <div className="flex items-center gap-2">
-                                                            <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                                                            <SelectValue placeholder="Pilih folder (opsional)" />
-                                                        </div>
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="none">Tanpa Folder</SelectItem>
-                                                    {folders.map((folder) => (
-                                                        <SelectItem key={folder.id} value={folder.id}>{folder.title}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                /> */}
+                            <div className="space-y-3">
+                                <FormLabel>Email Penerima (Opsional)</FormLabel>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Nama penerima..."
+                                            className="pl-9"
+                                            value={nameInput}
+                                            onChange={(e) => setNameInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    handleAddEmailRecipient();
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            type="email"
+                                            placeholder="email@example.com"
+                                            className={`pl-9 ${emailError ? 'border-red-500' : ''}`}
+                                            value={emailInput}
+                                            onChange={(e) => {
+                                                setEmailInput(e.target.value);
+                                                setEmailError("");
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    handleAddEmailRecipient();
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                {emailError && (
+                                    <p className="text-sm text-red-500">{emailError}</p>
+                                )}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleAddEmailRecipient}
+                                    className="w-full"
+                                    disabled={!emailInput.trim()}
+                                >
+                                    Tambah Email Penerima
+                                </Button>
 
+                                <div className="flex flex-wrap gap-1.5">
+                                    <FormField
+                                        control={form.control}
+                                        name="email_recipients"
+                                        render={({ field }) => (
+                                            <>
+                                                {(field.value || []).map((recipient) => (
+                                                    <Badge key={recipient.email} variant="secondary" className="gap-1 pr-1 py-1">
+                                                        {recipient.name ? `${recipient.name} (${recipient.email})` : recipient.email}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveEmailRecipient(recipient.email)}
+                                                            className="hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5"
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </button>
+                                                    </Badge>
+                                                ))}
+                                            </>
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-3">
                                 <FormField
                                     control={form.control}
                                     name="description"
